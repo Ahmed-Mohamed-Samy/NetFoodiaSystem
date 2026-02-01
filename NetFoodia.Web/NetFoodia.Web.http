@@ -1,0 +1,6 @@
+@NetFoodia.Web_HostAddress = http://localhost:5184
+
+GET {{NetFoodia.Web_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

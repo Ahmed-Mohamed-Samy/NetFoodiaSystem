@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NetFoodia.Domain\NetFoodia.Domain.csproj" />
+    <ProjectReference Include="..\NetFoodia.Services Abstraction\NetFoodia.Services Abstraction.csproj" />
+  </ItemGroup>
+
+</Project>
