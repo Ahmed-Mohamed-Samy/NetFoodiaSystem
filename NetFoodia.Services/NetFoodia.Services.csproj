@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.23" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\NetFoodia.Domain\NetFoodia.Domain.csproj" />
     <ProjectReference Include="..\NetFoodia.Services Abstraction\NetFoodia.Services Abstraction.csproj" />
   </ItemGroup>

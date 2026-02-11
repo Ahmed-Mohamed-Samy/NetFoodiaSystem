@@ -2,11 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using NetFoodia.Shared.CommonResult;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace NetFoodia.Presentation.Controllers
 {
@@ -72,6 +68,9 @@ namespace NetFoodia.Presentation.Controllers
                 modelState.AddModelError(error.Code, error.Description);
             return ValidationProblem(modelState);
         }
+
+        protected string GetEmailFromToken() => User.FindFirstValue(ClaimTypes.Email)!;
+        protected string GetUserIdFromToken() => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
     }
 }
