@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using NetFoodia.Services.Exceptions;
 
 namespace NetFoodia.Web.CustomMiddlewares

@@ -1,11 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NetFoodia.Domain.Contracts;
 using NetFoodia.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 
 namespace NetFoodia.Persistence

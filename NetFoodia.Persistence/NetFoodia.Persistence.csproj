@@ -14,4 +14,8 @@
     <ProjectReference Include="..\NetFoodia.Services\NetFoodia.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\DataSeed\" />
+  </ItemGroup>
+
 </Project>
