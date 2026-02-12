@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NetFoodia.Domain.Entities.IdentityModule;
 using System.Reflection;
+using NetFoodia.Domain.Entities.CharityModule;
+
 
 namespace NetFoodia.Persistence.Data.DbContexts
 {
@@ -22,6 +24,9 @@ namespace NetFoodia.Persistence.Data.DbContexts
         }
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Charity> Charities { get; set; }
+        public DbSet<CharityAdminProfile> CharityAdminProfiles { get; set; }
+
 
     }
 }

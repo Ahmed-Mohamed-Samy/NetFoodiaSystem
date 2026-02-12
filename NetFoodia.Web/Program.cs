@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using NetFoodia.Domain.Contracts;
 using NetFoodia.Domain.Entities.IdentityModule;
@@ -11,6 +12,7 @@ using NetFoodia.Persistence.Data.DbContexts;
 using NetFoodia.Persistence.IdentityData.DataSeed;
 using NetFoodia.Persistence.Repositories;
 using NetFoodia.Services;
+using NetFoodia.Services.MappingProfiles;
 using NetFoodia.Services.Security;
 using NetFoodia.Services.Validators.AuthenticationValidators;
 using NetFoodia.Services_Abstraction;
@@ -19,6 +21,7 @@ using NetFoodia.Web.Extensions;
 using NetFoodia.Web.Factories;
 using System.Text;
 using System.Text.Json.Serialization;
+
 
 namespace NetFoodia.Web
 {
@@ -38,7 +41,35 @@ namespace NetFoodia.Web
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             //builder.Services.AddOpenApi();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            //builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Description = "Enter JWT Token like this: Bearer {your token}"
+                });
+
+                options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+            });
+
             builder.Services.AddDbContext<NetFoodiaDbContext>(Options =>
             {
                 Options.UseSqlServer(
@@ -104,18 +135,25 @@ namespace NetFoodia.Web
                     options.InvalidModelStateResponseFactory =
                         ApiResponseFactory.GenerateApiValidationResponse;
                 });
+            
 
             #endregion
+
             #region BusinessServices
             builder.Services.AddScoped<IJwtService, JwtService>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+            builder.Services.AddScoped<ICharityService, CharityService>();
+            builder.Services.AddScoped<IAdminCharityService, AdminCharityService>();
+            builder.Services.AddAutoMapper(typeof(CharityMappingProfile).Assembly);
+
             //builder.Services.AddKeyedScoped<IDataInatializer, DataInatializer>("Default");
             builder.Services.AddKeyedScoped<IDataInatializer, IdentityDataInatializer>("Identity");
             builder.Services.AddFluentValidationAutoValidation();
             builder.Services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
+
             #endregion
 
             var app = builder.Build();

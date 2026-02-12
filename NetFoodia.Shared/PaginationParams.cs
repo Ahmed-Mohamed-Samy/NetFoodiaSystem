@@ -1,6 +1,6 @@
 ﻿namespace NetFoodia.Shared
 {
-    public abstract class PaginationParams
+    public  class PaginationParams
     {
         private const int DefaultPageSize = 10;
         private const int MaxPageSize = 20;
