@@ -1,10 +1,9 @@
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using NetFoodia.Domain.Contracts;
 using NetFoodia.Domain.Entities.IdentityModule;
@@ -72,9 +71,18 @@ namespace NetFoodia.Web
 
             builder.Services.AddDbContext<NetFoodiaDbContext>(Options =>
             {
-                Options.UseSqlServer(
-                    builder.Configuration.GetConnectionString("DefaultConnection")
-                );
+                var isHosted = builder.Configuration.GetValue<bool>("Deploy");
+                if (isHosted)
+                    Options.UseSqlServer(
+    builder.Configuration.GetConnectionString("HostConnection")
+                    );
+                else
+                {
+                    Options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    );
+                }
+
             });
             builder.Services.AddCors(options =>
                 {
@@ -135,7 +143,7 @@ namespace NetFoodia.Web
                     options.InvalidModelStateResponseFactory =
                         ApiResponseFactory.GenerateApiValidationResponse;
                 });
-            
+
 
             #endregion
 
@@ -168,24 +176,34 @@ namespace NetFoodia.Web
             #region Configure the HTTP request pipeline.
             app.UseMiddleware<ExceptionHandlerMiddleWare>();
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            //if (app.Environment.IsDevelopment())
+            //{
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
             {
-                app.UseSwagger();
-                app.UseSwaggerUI(options =>
-                {
-                    options.DisplayRequestDuration();
-                    options.EnableFilter();
-                });
-            }
+                options.DisplayRequestDuration();
+                options.EnableFilter();
+            });
+            //}
 
             app.UseStaticFiles();
             app.UseHttpsRedirection();
             app.UseCors("DevelopmentPolicy");
             app.UseAuthentication();
             app.UseAuthorization();
+            app.MapGet("/", () => Results.Redirect("/swagger/index.html"));
             app.MapControllers();
 
-            await app.RunAsync();
+            try
+            {
+                await app.RunAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("🔥 HOST CRASH");
+                Console.WriteLine(ex);
+                throw;
+            }
             #endregion
         }
     }
