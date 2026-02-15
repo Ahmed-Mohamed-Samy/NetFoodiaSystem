@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetFoodia.Persistence.Data.DbContexts;
 
@@ -11,9 +12,11 @@ using NetFoodia.Persistence.Data.DbContexts;
 namespace NetFoodia.Persistence.Data.Migrations
 {
     [DbContext(typeof(NetFoodiaDbContext))]
-    partial class NetFoodiaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260215163546_AddDonorAndVolunteerTable")]
+    partial class AddDonorAndVolunteerTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

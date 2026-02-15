@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetFoodia.Persistence.Data.DbContexts;
 
@@ -11,9 +12,11 @@ using NetFoodia.Persistence.Data.DbContexts;
 namespace NetFoodia.Persistence.Data.Migrations
 {
     [DbContext(typeof(NetFoodiaDbContext))]
-    partial class NetFoodiaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260215150030_Fix CharityAdminPK")]
+    partial class FixCharityAdminPK
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -338,65 +341,6 @@ namespace NetFoodia.Persistence.Data.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("NetFoodia.Domain.Entities.ProfileModule.DonorProfile", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("BusinessType")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<bool>("IsBusiness")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsVerified")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal>("ReliabilityScore")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("DonorProfiles", t =>
-                        {
-                            t.HasCheckConstraint("CK_DonorProfile_BusinessRules", "([IsBusiness] = 1 AND [BusinessType] IS NOT NULL) OR ([IsBusiness] = 0 AND [BusinessType] IS NULL AND [IsVerified] = 0)");
-
-                            t.HasCheckConstraint("CK_DonorProfile_ReliabilityScore_NonNegative", "[ReliabilityScore] >= 0");
-                        });
-                });
-
-            modelBuilder.Entity("NetFoodia.Domain.Entities.ProfileModule.VolunteerProfile", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<DateTime>("LastActiveAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("VehicleType")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("VolunteerProfiles");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -503,78 +447,6 @@ namespace NetFoodia.Persistence.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("NetFoodia.Domain.Entities.ProfileModule.DonorProfile", b =>
-                {
-                    b.HasOne("NetFoodia.Domain.Entities.IdentityModule.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.OwnsOne("NetFoodia.Domain.Entities.SharedValueObjects.GeoLocation", "Location", b1 =>
-                        {
-                            b1.Property<string>("DonorProfileUserId")
-                                .HasColumnType("nvarchar(450)");
-
-                            b1.Property<decimal>("Latitude")
-                                .HasPrecision(9, 6)
-                                .HasColumnType("decimal(9,6)")
-                                .HasColumnName("Latitude");
-
-                            b1.Property<decimal>("Longitude")
-                                .HasPrecision(9, 6)
-                                .HasColumnType("decimal(9,6)")
-                                .HasColumnName("Longitude");
-
-                            b1.HasKey("DonorProfileUserId");
-
-                            b1.ToTable("DonorProfiles");
-
-                            b1.WithOwner()
-                                .HasForeignKey("DonorProfileUserId");
-                        });
-
-                    b.Navigation("Location");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("NetFoodia.Domain.Entities.ProfileModule.VolunteerProfile", b =>
-                {
-                    b.HasOne("NetFoodia.Domain.Entities.IdentityModule.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.OwnsOne("NetFoodia.Domain.Entities.SharedValueObjects.GeoLocation", "Location", b1 =>
-                        {
-                            b1.Property<string>("VolunteerProfileUserId")
-                                .HasColumnType("nvarchar(450)");
-
-                            b1.Property<decimal>("Latitude")
-                                .HasPrecision(9, 6)
-                                .HasColumnType("decimal(9,6)")
-                                .HasColumnName("Latitude");
-
-                            b1.Property<decimal>("Longitude")
-                                .HasPrecision(9, 6)
-                                .HasColumnType("decimal(9,6)")
-                                .HasColumnName("Longitude");
-
-                            b1.HasKey("VolunteerProfileUserId");
-
-                            b1.ToTable("VolunteerProfiles");
-
-                            b1.WithOwner()
-                                .HasForeignKey("VolunteerProfileUserId");
-                        });
-
-                    b.Navigation("Location");
 
                     b.Navigation("User");
                 });
