@@ -24,5 +24,8 @@
         => new Error(code, description, ErrorType.Failure);
         public static Error InvalidCredentials(string code = "General.InvalidCredentials", string description = "A General InvalidCredentials Has Occurred")
         => new Error(code, description, ErrorType.InvalidCredentials);
+
+        public static Error BadRequest(string code = "General.BadRequest", string description = "A General BadRequest Has Occurred")
+    => new Error(code, description, ErrorType.BadRequest);
     }
 }

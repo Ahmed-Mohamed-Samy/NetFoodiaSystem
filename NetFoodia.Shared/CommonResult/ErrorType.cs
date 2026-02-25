@@ -8,5 +8,6 @@
         Unauthorized = 3,
         Forbidden = 4,
         InvalidCredentials = 5,
+        BadRequest = 6
     }
 }
