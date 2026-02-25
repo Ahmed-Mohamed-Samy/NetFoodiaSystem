@@ -19,6 +19,7 @@ using NetFoodia.Web.CustomMiddlewares;
 using NetFoodia.Web.Extensions;
 using NetFoodia.Web.Factories;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 
@@ -122,18 +123,23 @@ namespace NetFoodia.Web
                     ValidAudience = jwt.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SecretKey))
                 };
-                //options.Events = new JwtBearerEvents
-                //{
-                //    OnChallenge = context =>
-                //    {
-                //        context.HandleResponse();
-                //        context.Response.StatusCode = 401;
-                //        context.Response.ContentType = "application/json";
-                //        return context.Response.WriteAsync(
-                //            """{"success":false,"statusCode":401,"message":"You must be logged in"}"""
-                //        );
-                //    }
-                //};
+                options.Events = new JwtBearerEvents
+                {
+                    OnChallenge = async context =>
+                    {
+                        context.HandleResponse();
+
+                        context.Response.StatusCode = 401;
+                        context.Response.ContentType = "application/json";
+
+                        var result = JsonSerializer.Serialize(new
+                        {
+                            message = "Unauthorized - Invalid or missing token"
+                        });
+
+                        await context.Response.WriteAsync(result);
+                    }
+                };
             });
 
 
@@ -155,6 +161,7 @@ namespace NetFoodia.Web
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
             builder.Services.AddScoped<ICharityService, CharityService>();
             builder.Services.AddScoped<IAdminCharityService, AdminCharityService>();
+            builder.Services.AddScoped<IProfileService, ProfileService>();
             builder.Services.AddAutoMapper(typeof(CharityMappingProfile).Assembly);
 
             //builder.Services.AddKeyedScoped<IDataInatializer, DataInatializer>("Default");
@@ -191,7 +198,7 @@ namespace NetFoodia.Web
             app.UseCors("DevelopmentPolicy");
             app.UseAuthentication();
             app.UseAuthorization();
-            app.MapGet("/", () => Results.Redirect("/swagger/index.html"));
+            //app.MapGet("/", () => Results.Redirect("/swagger/index.html"));
             app.MapControllers();
 
             try

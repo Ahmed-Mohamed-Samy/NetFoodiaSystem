@@ -58,6 +58,7 @@ namespace NetFoodia.Presentation.Controllers
             ErrorType.Validation => StatusCodes.Status400BadRequest,
             ErrorType.InvalidCredentials => StatusCodes.Status401Unauthorized,
             ErrorType.Failure => StatusCodes.Status500InternalServerError,
+            ErrorType.BadRequest => StatusCodes.Status400BadRequest,
             _ => StatusCodes.Status500InternalServerError
         };
 
@@ -71,6 +72,7 @@ namespace NetFoodia.Presentation.Controllers
 
         protected string GetEmailFromToken() => User.FindFirstValue(ClaimTypes.Email)!;
         protected string GetUserIdFromToken() => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        protected string GetRoleFromToken() => User.FindFirstValue(ClaimTypes.Role)!;
 
     }
 }
