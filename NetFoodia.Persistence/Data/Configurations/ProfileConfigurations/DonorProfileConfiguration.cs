@@ -36,7 +36,7 @@ namespace NetFoodia.Persistence.Data.Configurations.ProfileConfigurations
             {
                 t.HasCheckConstraint("CK_DonorProfile_ReliabilityScore_NonNegative", "[ReliabilityScore] >= 0");
                 t.HasCheckConstraint("CK_DonorProfile_BusinessRules",
-                    "([IsBusiness] = 1 AND [BusinessType] IS NOT NULL) OR ([IsBusiness] = 0 AND [BusinessType] IS NULL AND [IsVerified] = 0)");
+                    "([IsBusiness] = 1 AND [BusinessType] IS NOT NULL) OR ([IsBusiness] = 0 AND [BusinessType] IS NULL AND [IsVerified] = 1)");
             });
         }
     }

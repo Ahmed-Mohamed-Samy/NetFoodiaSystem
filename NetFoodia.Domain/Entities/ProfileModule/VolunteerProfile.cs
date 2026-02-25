@@ -10,6 +10,7 @@ namespace NetFoodia.Domain.Entities.ProfileModule
 
         public VolunteerStatus Status { get; set; }
         public GeoLocation? Location { get; set; }
+        public string Address { get; set; } = default!;
         public string? VehicleType { get; set; }
         public DateTime LastActiveAt { get; set; } = DateTime.UtcNow;
     }

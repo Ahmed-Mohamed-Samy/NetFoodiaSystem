@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetFoodia.Persistence.Data.DbContexts;
 
@@ -11,9 +12,11 @@ using NetFoodia.Persistence.Data.DbContexts;
 namespace NetFoodia.Persistence.Data.Migrations
 {
     [DbContext(typeof(NetFoodiaDbContext))]
-    partial class NetFoodiaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260215210424_AddAddressCol")]
+    partial class AddAddressCol
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -370,7 +373,7 @@ namespace NetFoodia.Persistence.Data.Migrations
 
                     b.ToTable("DonorProfiles", t =>
                         {
-                            t.HasCheckConstraint("CK_DonorProfile_BusinessRules", "([IsBusiness] = 1 AND [BusinessType] IS NOT NULL) OR ([IsBusiness] = 0 AND [BusinessType] IS NULL AND [IsVerified] = 1)");
+                            t.HasCheckConstraint("CK_DonorProfile_BusinessRules", "([IsBusiness] = 1 AND [BusinessType] IS NOT NULL) OR ([IsBusiness] = 0 AND [BusinessType] IS NULL AND [IsVerified] = 0)");
 
                             t.HasCheckConstraint("CK_DonorProfile_ReliabilityScore_NonNegative", "[ReliabilityScore] >= 0");
                         });

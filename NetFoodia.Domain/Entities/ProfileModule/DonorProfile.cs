@@ -10,6 +10,7 @@ namespace NetFoodia.Domain.Entities.ProfileModule
         public bool IsBusiness { get; set; }
         public string? BusinessType { get; set; }
         public GeoLocation? Location { get; set; }
+        public string Address { get; set; } = default!;
         public bool IsVerified { get; set; }
         public decimal ReliabilityScore { get; set; }
     }
