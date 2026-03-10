@@ -3,15 +3,11 @@ using NetFoodia.Domain.Contracts;
 
 using NetFoodia.Domain.Entities.CharityModule;
 using NetFoodia.Services.Specifications.CharitySpecifications;
+using NetFoodia.Services.Specifications.ProfileSpecifications;
 using NetFoodia.Services_Abstraction;
 using NetFoodia.Shared;
 using NetFoodia.Shared.CharityDTOs;
 using NetFoodia.Shared.CommonResult;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NetFoodia.Services
 {
@@ -35,10 +31,10 @@ namespace NetFoodia.Services
             if (existingProfile is not null)
                 return Error.Validation("Charity.Exists", "This Charity Admin already has a charity");
 
-            
+
             var charity = _mapper.Map<Charity>(dto);
 
-            
+
             charity.IsVerified = false;
             charity.MembershipStatus = NetFoodia.Domain.Entities.CharityModule.CharityMembershipStatus.Pending;
 
@@ -54,7 +50,7 @@ namespace NetFoodia.Services
             await profileRepo.AddAsync(profile);
             await _unitOfWork.SaveChangesAsync();
 
-           
+
             return _mapper.Map<CharityDetailsDTO>(charity);
         }
 
@@ -68,7 +64,7 @@ namespace NetFoodia.Services
 
             var charity = profile.Charity;
 
-          
+
             _mapper.Map(dto, charity);
 
             _unitOfWork.GetRepository<Charity>().Update(charity);
@@ -119,6 +115,16 @@ namespace NetFoodia.Services
             var items = _mapper.Map<List<CharityListItemDTO>>(charities);
 
             return new PaginatedResult<CharityListItemDTO>(pagination.PageIndex, pagination.PageSize, total, items);
+        }
+
+        public async Task<Result<int>> GetCharityId(string charityAdminId)
+        {
+            var charityAdminSpec = new CharityAdminProfileSpec(charityAdminId);
+            var charityAdmin = await _unitOfWork.GetRepository<CharityAdminProfile>().GetByIdAsync(charityAdminSpec);
+            if (charityAdmin is null)
+                return Error.NotFound("CharityAdmin.NotFound", "Charity Admin Profile Not Found");
+
+            return charityAdmin.CharityId;
         }
     }
 }
