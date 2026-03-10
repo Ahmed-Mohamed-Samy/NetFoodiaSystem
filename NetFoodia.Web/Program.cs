@@ -162,6 +162,7 @@ namespace NetFoodia.Web
             builder.Services.AddScoped<ICharityService, CharityService>();
             builder.Services.AddScoped<IAdminCharityService, AdminCharityService>();
             builder.Services.AddScoped<IProfileService, ProfileService>();
+            builder.Services.AddScoped<IVolunteerMembershipService, VolunteerMembershipService>();
             builder.Services.AddAutoMapper(typeof(CharityMappingProfile).Assembly);
 
             //builder.Services.AddKeyedScoped<IDataInatializer, DataInatializer>("Default");
