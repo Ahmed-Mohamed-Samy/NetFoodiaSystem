@@ -12,5 +12,7 @@ namespace NetFoodia.Domain.Contracts
         void Remove(TEntity entity);
         void Update(TEntity entity);
         Task<int> CountAsync(ISpecification<TEntity> specifications);
+        Task<bool> AnyAsync(ISpecification<TEntity> specifications);
+        Task<TEntity?> FirstOrDefaultAsync(ISpecification<TEntity> specifications);
     }
 }

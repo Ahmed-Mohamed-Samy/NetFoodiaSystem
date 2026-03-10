@@ -39,5 +39,15 @@ namespace NetFoodia.Persistence.Repositories
         {
             return await SpecificationEvaluator.CreateQuery(_dbContext.Set<TEntity>(), specifications).CountAsync();
         }
+
+        public async Task<bool> AnyAsync(ISpecification<TEntity> specifications)
+        {
+            return await SpecificationEvaluator.CreateQuery(_dbContext.Set<TEntity>(), specifications).AnyAsync();
+        }
+
+        public async Task<TEntity?> FirstOrDefaultAsync(ISpecification<TEntity> specifications)
+        {
+            return await SpecificationEvaluator.CreateQuery(_dbContext.Set<TEntity>(), specifications).FirstOrDefaultAsync();
+        }
     }
 }

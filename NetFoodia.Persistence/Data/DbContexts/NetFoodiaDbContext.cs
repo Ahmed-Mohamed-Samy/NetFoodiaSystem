@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NetFoodia.Domain.Entities.CharityModule;
 using NetFoodia.Domain.Entities.IdentityModule;
+using NetFoodia.Domain.Entities.MembershipModule;
 using NetFoodia.Domain.Entities.ProfileModule;
 using System.Reflection;
 
@@ -29,6 +30,8 @@ namespace NetFoodia.Persistence.Data.DbContexts
         public DbSet<CharityAdminProfile> CharityAdminProfiles { get; set; }
         public DbSet<VolunteerProfile> VolunteerProfiles { get; set; }
         public DbSet<DonorProfile> DonorProfiles { get; set; }
+        public DbSet<VolunteerMembership> Memberships { get; set; }
+
 
 
     }

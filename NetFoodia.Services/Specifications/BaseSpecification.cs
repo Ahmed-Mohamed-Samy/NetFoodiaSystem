@@ -11,10 +11,20 @@ namespace NetFoodia.Services.Specifications
 
         #region Includes
         public ICollection<Expression<Func<TEntity, object>>> Includes { get; } = [];
+
+
         protected void AddInclude(Expression<Func<TEntity, object>> includeExp)
+                => Includes.Add(includeExp);
+
+
+        public List<string> IncludeStrings { get; } = new();
+
+
+        protected virtual void AddInclude(string includeString)
         {
-            Includes.Add(includeExp);
+            IncludeStrings.Add(includeString);
         }
+
         #endregion
 
         #region Sorting
@@ -32,6 +42,7 @@ namespace NetFoodia.Services.Specifications
         public int Skip { get; private set; }
 
         public bool IsPaginated { get; private set; }
+
 
         protected void ApplyPagination(int pageSize, int pageIndex)
         {

@@ -9,6 +9,7 @@ namespace NetFoodia.Domain.Contracts
         ICollection<Expression<Func<TEntity, object>>> Includes { get; }
         Expression<Func<TEntity, object>>? OrderBy { get; }
         Expression<Func<TEntity, object>>? OrderByDesc { get; }
+        List<string> IncludeStrings { get; }
         int Take { get; }
         int Skip { get; }
         bool IsPaginated { get; }
