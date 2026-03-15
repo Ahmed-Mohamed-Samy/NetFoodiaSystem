@@ -1,0 +1,120 @@
+﻿using AutoMapper;
+using NetFoodia.Domain.Contracts;
+using NetFoodia.Domain.Entities.CharityModule;
+using NetFoodia.Domain.Entities.DonationModule;
+using NetFoodia.Services.Specifications.CharitySpecifications;
+using NetFoodia.Services.Specifications.DonationSpecifications;
+using NetFoodia.Services_Abstraction;
+using NetFoodia.Shared.CommonResult;
+using NetFoodia.Shared.DonationDTOs;
+using DonationStatus = NetFoodia.Domain.Entities.DonationModule.DonationStatus;
+
+namespace NetFoodia.Services
+{
+    public class CharityDonationService : ICharityDonationService
+    {
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
+
+        public CharityDonationService(IUnitOfWork unitOfWork, IMapper mapper)
+        {
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+        }
+
+        public async Task<Result<IEnumerable<PendingDonationListItemDTO>>> ListPendingDonationsAsync(string charityAdminUserId)
+        {
+            var charityId = await GetCharityIdForAdmin(charityAdminUserId);
+            if (charityId is null)
+                return Error.NotFound("Charity.NotFound", "Charity not found for current admin");
+
+            var repo = _unitOfWork.GetRepository<Donation>();
+            var donations = await repo.GetAllAsync(new PendingDonationsForCharitySpec(charityId.Value));
+
+            var donationsDto = _mapper.Map<IEnumerable<PendingDonationListItemDTO>>(donations);
+            return Result<IEnumerable<PendingDonationListItemDTO>>.OK(donationsDto);
+        }
+
+        public async Task<Result<bool>> AcceptDonationAsync(string charityAdminUserId, int donationId)
+        {
+            var charityId = await GetCharityIdForAdmin(charityAdminUserId);
+            if (charityId is null)
+                return Error.NotFound("Charity.NotFound", "Charity not found for current admin");
+
+            var repo = _unitOfWork.GetRepository<Donation>();
+            var donation = await repo.GetByIdAsync(new DonationForCharityAdminSpec(charityId.Value, donationId));
+
+            if (donation is null)
+                return Error.NotFound("Donation.NotFound", "Donation not found");
+
+            if (donation.Status != DonationStatus.Pending)
+                return Error.Validation("Donation.InvalidState", "Only Pending donation can be accepted");
+
+            donation.Status = DonationStatus.Accepted;
+            donation.AcceptedAt = DateTime.UtcNow;
+
+            repo.Update(donation);
+            var result = await _unitOfWork.SaveChangesAsync() > 0;
+
+            return result;
+        }
+
+        public async Task<Result<bool>> RejectDonationAsync(string charityAdminUserId, int donationId, string reason)
+        {
+            var charityId = await GetCharityIdForAdmin(charityAdminUserId);
+            if (charityId is null)
+                return Error.NotFound("Charity.NotFound", "Charity not found for current admin");
+
+            var repo = _unitOfWork.GetRepository<Donation>();
+            var donation = await repo.GetByIdAsync(new DonationForCharityAdminSpec(charityId.Value, donationId));
+
+            if (donation is null)
+                return Error.NotFound("Donation.NotFound", "Donation not found");
+
+            if (donation.Status != DonationStatus.Pending)
+                return Error.Validation("Donation.InvalidState", "Only Pending donation can be rejected");
+
+            donation.Status = DonationStatus.Rejected;
+
+            repo.Update(donation);
+            var result = await _unitOfWork.SaveChangesAsync() > 0;
+
+            return result;
+        }
+
+        public async Task<Result<bool>> MarkDonationExpiredAsync(string charityAdminUserId, int donationId)
+        {
+            var charityId = await GetCharityIdForAdmin(charityAdminUserId);
+            if (charityId is null)
+                return Error.NotFound("Charity.NotFound", "Charity not found for current admin");
+
+            var repo = _unitOfWork.GetRepository<Donation>();
+            var donation = await repo.GetByIdAsync(new DonationForCharityAdminSpec(charityId.Value, donationId));
+
+            if (donation is null)
+                return Error.NotFound("Donation.NotFound", "Donation not found");
+
+            if (donation.Status == DonationStatus.Cancelled ||
+                donation.Status == DonationStatus.Rejected ||
+                donation.Status == DonationStatus.Expired)
+            {
+                return Error.Validation("Donation.InvalidState", "Donation can not be marked expired in its current state");
+            }
+
+            donation.Status = DonationStatus.Expired;
+
+            repo.Update(donation);
+            var result = await _unitOfWork.SaveChangesAsync() > 0;
+
+            return result;
+        }
+
+        private async Task<int?> GetCharityIdForAdmin(string userId)
+        {
+            var repo = _unitOfWork.GetRepository<CharityAdminProfile>();
+            var profile = await repo.FirstOrDefaultAsync(new CharityAdminProfileByUserSpec(userId));
+
+            return profile?.CharityId;
+        }
+    }
+}

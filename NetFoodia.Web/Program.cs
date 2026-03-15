@@ -163,6 +163,10 @@ namespace NetFoodia.Web
             builder.Services.AddScoped<IAdminCharityService, AdminCharityService>();
             builder.Services.AddScoped<IProfileService, ProfileService>();
             builder.Services.AddScoped<IVolunteerMembershipService, VolunteerMembershipService>();
+            builder.Services.AddScoped<IDonationService, DonationService>();
+            builder.Services.AddScoped<ICharityDonationService, CharityDonationService>();
+            builder.Services.AddScoped<ICharityPickupTaskService, CharityPickupTaskService>();
+            builder.Services.AddScoped<IVolunteerPickupTaskService, VolunteerPickupTaskService>();
             builder.Services.AddAutoMapper(typeof(CharityMappingProfile).Assembly);
 
             //builder.Services.AddKeyedScoped<IDataInatializer, DataInatializer>("Default");
