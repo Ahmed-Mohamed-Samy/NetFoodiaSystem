@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetFoodia.Persistence.Data.DbContexts;
 
@@ -11,9 +12,11 @@ using NetFoodia.Persistence.Data.DbContexts;
 namespace NetFoodia.Persistence.Data.Migrations
 {
     [DbContext(typeof(NetFoodiaDbContext))]
-    partial class NetFoodiaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260312034027_AddDeliveryModule")]
+    partial class AddDeliveryModule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -229,27 +232,15 @@ namespace NetFoodia.Persistence.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CandidateLoad")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
 
-                    b.Property<float>("DistanceKm")
-                        .HasColumnType("real");
-
-                    b.Property<int>("DonationId")
-                        .HasColumnType("int");
-
-                    b.Property<float>("EtaMinutes")
-                        .HasColumnType("real");
-
                     b.Property<DateTime>("OfferedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("Outcome")
+                    b.Property<int>("Outcome")
                         .HasColumnType("int");
 
                     b.Property<int>("PickupTaskId")
@@ -261,16 +252,11 @@ namespace NetFoodia.Persistence.Data.Migrations
                     b.Property<int>("Response")
                         .HasColumnType("int");
 
-                    b.Property<float?>("ScoreAtOffer")
-                        .HasColumnType("real");
-
                     b.Property<string>("VolunteerId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DonationId");
 
                     b.HasIndex("PickupTaskId");
 
@@ -332,12 +318,6 @@ namespace NetFoodia.Persistence.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("AcceptedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("AssignedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("CharityId")
                         .HasColumnType("int");
 
@@ -346,39 +326,34 @@ namespace NetFoodia.Persistence.Data.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
 
-                    b.Property<DateTime?>("DeliveredAt")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("DonorId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("ExpirationTime")
+                    b.Property<DateTime>("ExpiryDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("FoodType")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime?>("PickedUpAt")
+                    b.Property<DateTime?>("ReviewedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("PreparedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<float>("UrgencyScore")
-                        .HasColumnType("real");
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
 
@@ -717,12 +692,6 @@ namespace NetFoodia.Persistence.Data.Migrations
 
             modelBuilder.Entity("NetFoodia.Domain.Entities.DeliveryModule.AssignmentAttempt", b =>
                 {
-                    b.HasOne("NetFoodia.Domain.Entities.DonationModule.Donation", "Donation")
-                        .WithMany()
-                        .HasForeignKey("DonationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("NetFoodia.Domain.Entities.DeliveryModule.PickupTask", "PickupTask")
                         .WithMany()
                         .HasForeignKey("PickupTaskId")
@@ -734,8 +703,6 @@ namespace NetFoodia.Persistence.Data.Migrations
                         .HasForeignKey("VolunteerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Donation");
 
                     b.Navigation("PickupTask");
 
@@ -782,33 +749,9 @@ namespace NetFoodia.Persistence.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.OwnsOne("NetFoodia.Domain.Entities.SharedValueObjects.GeoLocation", "PickupLocation", b1 =>
-                        {
-                            b1.Property<int>("DonationId")
-                                .HasColumnType("int");
-
-                            b1.Property<decimal>("Latitude")
-                                .HasColumnType("decimal(18,6)")
-                                .HasColumnName("PickupLatitude");
-
-                            b1.Property<decimal>("Longitude")
-                                .HasColumnType("decimal(18,6)")
-                                .HasColumnName("PickupLongitude");
-
-                            b1.HasKey("DonationId");
-
-                            b1.ToTable("Donations");
-
-                            b1.WithOwner()
-                                .HasForeignKey("DonationId");
-                        });
-
                     b.Navigation("Charity");
 
                     b.Navigation("Donor");
-
-                    b.Navigation("PickupLocation")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("NetFoodia.Domain.Entities.IdentityModule.RefreshToken", b =>
