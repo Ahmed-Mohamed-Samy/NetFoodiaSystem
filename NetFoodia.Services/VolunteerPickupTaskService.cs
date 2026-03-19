@@ -16,15 +16,21 @@ namespace NetFoodia.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IAssignmentAttemptService _assignmentAttemptService;
 
-        public VolunteerPickupTaskService(IUnitOfWork unitOfWork, IMapper mapper)
+        public VolunteerPickupTaskService(
+                IUnitOfWork unitOfWork,
+                IMapper mapper,
+                IAssignmentAttemptService assignmentAttemptService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _assignmentAttemptService = assignmentAttemptService;
         }
 
         public async Task<Result<IEnumerable<VolunteerOfferDTO>>> ListAvailableOffersAsync(string volunteerUserId)
         {
+            await _assignmentAttemptService.ExpirePendingOffersAsync();
             var repo = _unitOfWork.GetRepository<AssignmentAttempt>();
             var offers = await repo.GetAllAsync(new VolunteerAvailableOffersSpecification(volunteerUserId));
 
@@ -34,6 +40,7 @@ namespace NetFoodia.Services
 
         public async Task<Result<bool>> AcceptTaskAsync(string volunteerUserId, int taskId)
         {
+            await _assignmentAttemptService.ExpirePendingOffersAsync();
             var attemptRepo = _unitOfWork.GetRepository<AssignmentAttempt>();
             var taskRepo = _unitOfWork.GetRepository<PickupTask>();
             var donationRepo = _unitOfWork.GetRepository<Donation>();
@@ -73,6 +80,7 @@ namespace NetFoodia.Services
 
         public async Task<Result<bool>> RejectTaskAsync(string volunteerUserId, int taskId)
         {
+            await _assignmentAttemptService.ExpirePendingOffersAsync();
             var attemptRepo = _unitOfWork.GetRepository<AssignmentAttempt>();
             var taskRepo = _unitOfWork.GetRepository<PickupTask>();
 
@@ -131,6 +139,7 @@ namespace NetFoodia.Services
         {
             var taskRepo = _unitOfWork.GetRepository<PickupTask>();
             var donationRepo = _unitOfWork.GetRepository<Donation>();
+            var attemptRepo = _unitOfWork.GetRepository<AssignmentAttempt>();
 
             var task = await taskRepo.GetByIdAsync(
                 new VolunteerAssignedTaskSpecification(volunteerUserId, taskId));
@@ -150,6 +159,15 @@ namespace NetFoodia.Services
             {
                 donation.DeliveredAt = DateTime.UtcNow;
                 donationRepo.Update(donation);
+            }
+
+            var attempt = await attemptRepo.FirstOrDefaultAsync(
+                new AcceptedAttemptForVolunteerAndTaskSpecification(volunteerUserId, taskId));
+
+            if (attempt is not null)
+            {
+                attempt.Outcome = AttemptOutcome.Completed;
+                attemptRepo.Update(attempt);
             }
 
             var result = await _unitOfWork.SaveChangesAsync() > 0;
