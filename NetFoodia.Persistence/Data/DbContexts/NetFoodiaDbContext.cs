@@ -7,6 +7,7 @@ using NetFoodia.Domain.Entities.MembershipModule;
 using NetFoodia.Domain.Entities.ProfileModule;
 using NetFoodia.Domain.Entities.DonationModule;
 using NetFoodia.Domain.Entities.DeliveryModule;
+using NetFoodia.Domain.Entities.NotificationModule;
 using System.Reflection;
 
 
@@ -36,6 +37,7 @@ namespace NetFoodia.Persistence.Data.DbContexts
         public DbSet<Donation> Donations { get; set; }
         public DbSet<PickupTask> PickupTasks { get; set; }
         public DbSet<AssignmentAttempt> AssignmentAttempts { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
     }
 }

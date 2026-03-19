@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>SignalR Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+</head>
+<body>
+
+    <h2>SignalR Notification Test</h2>
+    <button onclick="connect()">Connect</button>
+<pre id="log"></pre>
+
+    <script>
+    let connection;
+
+    function log(message) {
+        document.getElementById("log").innerText += message + "\n";
+    }
+
+    function connect() {
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InlvdXNzZWZAZ21haWwuY29tIiwibmFtZSI6InlvdXNzZWZAZ21haWwuY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZWlkZW50aWZpZXIiOiI0N2UxMDNiNS02NDlmLTQwM2EtOWYyOC1lZDY3M2I3MTc1YTciLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJWb2x1bnRlZXIiLCJleHAiOjE3NzM4ODc1MDMsImlzcyI6Ik5ldEZvb2RpYUFQSSIsImF1ZCI6Ik5ldEZvb2RpYUNsaWVudCJ9.GFyCSxICoZp81Xi74J49kRzAO_jJY1PCdOO_iN1z2Z4";
+
+        connection = new signalR.HubConnectionBuilder()
+            .withUrl("https://localhost:7009/hubs/notifications", {
+                accessTokenFactory: () => token
+            })
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on("ReceiveNotification", (data) => {
+            log("🔥 Notification received:");
+            log(JSON.stringify(data, null, 2));
+        });
+
+        connection.start()
+            .then(() => log("✅ Connected to SignalR"))
+            .catch(err => log("❌ Error: " + err));
+    }
+    </script>
+
+</body>
+</html>

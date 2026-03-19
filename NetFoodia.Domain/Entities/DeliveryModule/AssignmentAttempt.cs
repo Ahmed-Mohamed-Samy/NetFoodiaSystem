@@ -31,5 +31,6 @@ namespace NetFoodia.Domain.Entities.DeliveryModule
         public float EtaMinutes { get; set; }
         public int CandidateLoad { get; set; }
         public float? ScoreAtOffer { get; set; }
+        public DateTime ExpiresAt { get; set; }
     }
 }
