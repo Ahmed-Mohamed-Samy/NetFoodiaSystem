@@ -125,6 +125,19 @@ namespace NetFoodia.Web
                 };
                 options.Events = new JwtBearerEvents
                 {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            path.StartsWithSegments("/hubs/notifications"))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return Task.CompletedTask;
+                    },
                     OnChallenge = async context =>
                     {
                         context.HandleResponse();
@@ -167,6 +180,10 @@ namespace NetFoodia.Web
             builder.Services.AddScoped<ICharityDonationService, CharityDonationService>();
             builder.Services.AddScoped<ICharityPickupTaskService, CharityPickupTaskService>();
             builder.Services.AddScoped<IVolunteerPickupTaskService, VolunteerPickupTaskService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<IRealtimeNotificationService, RealtimeNotificationService>();
+            builder.Services.AddScoped<IAssignmentAttemptService, AssignmentAttemptService>();
+            builder.Services.AddSignalR();
             builder.Services.AddAutoMapper(typeof(CharityMappingProfile).Assembly);
 
             //builder.Services.AddKeyedScoped<IDataInatializer, DataInatializer>("Default");
@@ -205,6 +222,7 @@ namespace NetFoodia.Web
             app.UseAuthorization();
             //app.MapGet("/", () => Results.Redirect("/swagger/index.html"));
             app.MapControllers();
+            app.MapHub<NetFoodia.Services.Hubs.NotificationHub>("/hubs/notifications");
 
             try
             {

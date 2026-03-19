@@ -8,8 +8,9 @@ namespace NetFoodia.Shared.DeliveryDTOs
 {
     public enum AttemptOutcome
     {
-        Active = 1,
-        Closed = 2,
-        Expired = 3
+        Completed = 1,
+        Cancelled = 2,
+        Late = 3,
+        Failed = 4
     }
 }

@@ -20,11 +20,19 @@ namespace NetFoodia.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly INotificationService _notificationService;
+        private readonly IAssignmentAttemptService _assignmentAttemptService;
 
-        public CharityPickupTaskService(IUnitOfWork unitOfWork, IMapper mapper)
+        public CharityPickupTaskService(
+             IUnitOfWork unitOfWork,
+             IMapper mapper,
+             INotificationService notificationService,
+             IAssignmentAttemptService assignmentAttemptService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _notificationService = notificationService;
+            _assignmentAttemptService = assignmentAttemptService;
         }
 
         public async Task<Result<PickupTaskDetailsDTO>> CreatePickupTaskAsync(string charityAdminUserId, int donationId, CreatePickupTaskDTO dto)
@@ -82,6 +90,7 @@ namespace NetFoodia.Services
 
         public async Task<Result<bool>> OfferTaskToVolunteerAsync(string charityAdminUserId, int taskId, string volunteerUserId)
         {
+            await _assignmentAttemptService.ExpirePendingOffersAsync();
             var charityId = await GetCharityIdForAdmin(charityAdminUserId);
             if (charityId is null)
                 return Error.NotFound("Charity.NotFound", "Charity not found for current admin");
@@ -103,12 +112,15 @@ namespace NetFoodia.Services
             if (existingOffer)
                 return Error.Validation("PickupTask.OfferExists", "Offer already exists for this volunteer");
 
+            var offerTimeoutMinutes = 10;
+
             var attempt = new AssignmentAttempt
             {
                 PickupTaskId = taskId,
                 DonationId = task.DonationId,
                 VolunteerId = volunteerUserId,
                 OfferedAt = DateTime.UtcNow,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(offerTimeoutMinutes),
                 Response = AttemptResponse.Pending,
                 Outcome = null,
                 DistanceKm = 0,
@@ -123,6 +135,15 @@ namespace NetFoodia.Services
             taskRepo.Update(task);
 
             var result = await _unitOfWork.SaveChangesAsync() > 0;
+
+            await _notificationService.CreateNotificationAsync(
+                     volunteerUserId,
+                     "New Pickup Offer",
+                     $"You have a new pickup offer. Please respond before {attempt.ExpiresAt:yyyy-MM-dd HH:mm:ss}.",
+                     (int)Domain.Entities.NotificationModule.NotificationType.OfferReceived,
+                     relatedTaskId: taskId,
+                     relatedDonationId: task.DonationId
+                     );
             return result;
         }
 

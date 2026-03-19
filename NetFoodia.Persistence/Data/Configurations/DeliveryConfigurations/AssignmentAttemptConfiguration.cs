@@ -52,6 +52,9 @@ namespace NetFoodia.Persistence.Data.Configurations.DeliveryConfigurations
                    .WithMany()
                    .HasForeignKey(a => a.VolunteerId)
                    .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(a => a.ExpiresAt)
+                   .IsRequired();
         }
     }
 }
