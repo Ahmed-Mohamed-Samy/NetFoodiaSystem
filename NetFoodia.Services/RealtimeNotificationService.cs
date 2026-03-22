@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
+using NetFoodia.Services.Hubs;
 using NetFoodia.Services_Abstraction;
 using NetFoodia.Shared.CommonResult;
-using NetFoodia.Services.Hubs;
- 
+
 
 namespace NetFoodia.Services
 {
