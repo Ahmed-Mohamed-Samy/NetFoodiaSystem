@@ -8,6 +8,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.23" />
+	  <PackageReference Include="Microsoft.ML" Version="3.0.1" />
+	  <PackageReference Include="Microsoft.ML.AutoML" Version="0.21.1" />
+	  <PackageReference Include="Microsoft.ML.ImageAnalytics" Version="3.0.1" />
+	  <PackageReference Include="Microsoft.ML.Vision" Version="3.0.1" />
   </ItemGroup>
 
   <ItemGroup>
