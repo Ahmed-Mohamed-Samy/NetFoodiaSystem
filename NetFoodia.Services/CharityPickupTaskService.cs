@@ -13,6 +13,7 @@ using DonationStatus = NetFoodia.Domain.Entities.DonationModule.DonationStatus;
 using TaskStatus = NetFoodia.Domain.Entities.DeliveryModule.TaskStatus;
 using AttemptResponse = NetFoodia.Domain.Entities.DeliveryModule.AttemptResponse;
 using AttemptOutcome = NetFoodia.Domain.Entities.DeliveryModule.AttemptOutcome;
+using NetFoodia.Services.Specifications.MembershipSpecifications;
 
 namespace NetFoodia.Services
 {
@@ -68,6 +69,8 @@ namespace NetFoodia.Services
             var result = await _unitOfWork.SaveChangesAsync() > 0;
             if (!result)
                 return Error.Failure("PickupTask.CreateFailed", "Failed to create pickup task");
+
+            await AutoOfferToVolunteersAsync(charityAdminUserId, task.Id);
 
             var savedTask = await taskRepo.GetByIdAsync(new PickupTaskByIdSpec(task.Id));
             var taskDto = _mapper.Map<PickupTaskDetailsDTO>(savedTask);
@@ -244,6 +247,82 @@ namespace NetFoodia.Services
                     repo.Update(attempt);
                 }
             }
+        }
+
+
+        public async Task<Result<bool>> AutoOfferToVolunteersAsync(string charityAdminUserId, int taskId)
+        {
+           // await _assignmentAttemptService.ExpirePendingOffersAsync();
+
+            var charityId = await GetCharityIdForAdmin(charityAdminUserId);
+            if (charityId is null)
+                return Error.NotFound("Charity.NotFound", "Charity not found for current admin");
+
+            var taskRepo = _unitOfWork.GetRepository<PickupTask>();
+            var membershipRepo = _unitOfWork.GetRepository<VolunteerMembership>();
+
+            var task = await taskRepo.GetByIdAsync(new PickupTaskForCharitySpecification(charityId.Value, taskId));
+            if (task is null)
+                return Error.NotFound("PickupTask.NotFound", "Pickup task not found");
+
+            if (task.Status != TaskStatus.Open)
+                return Error.Validation("PickupTask.InvalidState", "Task must be Open");
+
+            var volunteers = await membershipRepo.GetAllAsync(
+                new VolunteersApprovedForCharitySpecification(charityId.Value));
+
+            if (!volunteers.Any())
+                return Error.NotFound("Volunteers.NotFound", "No approved volunteers found for this charity");
+
+            foreach (var membership in volunteers)
+            {
+                await OfferTaskInternalAsync(task, membership.VolunteerId);
+            }
+
+            task.Status = TaskStatus.Offered;
+            taskRepo.Update(task);
+
+            var result = await _unitOfWork.SaveChangesAsync() > 0;
+            return result;
+        }
+
+        private async Task OfferTaskInternalAsync(PickupTask task, string volunteerUserId)
+        {
+            var attemptRepo = _unitOfWork.GetRepository<AssignmentAttempt>();
+
+            var existingOffer = await attemptRepo.AnyAsync(
+                new ActiveOfferForVolunteerAndTaskSpecification(volunteerUserId, task.Id));
+
+            if (existingOffer)
+                return;
+
+            var offerTimeoutMinutes = 10;
+
+            var attempt = new AssignmentAttempt
+            {
+                PickupTaskId = task.Id,
+                DonationId = task.DonationId,
+                VolunteerId = volunteerUserId,
+                OfferedAt = DateTime.UtcNow,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(offerTimeoutMinutes),
+                Response = AttemptResponse.Pending,
+                Outcome = null,
+                DistanceKm = 0,
+                EtaMinutes = 0,
+                CandidateLoad = 0,
+                ScoreAtOffer = null
+            };
+
+            await attemptRepo.AddAsync(attempt);
+
+            await _notificationService.CreateNotificationAsync(
+                volunteerUserId,
+                "New Pickup Offer",
+                $"You have a new pickup offer. Please respond before {attempt.ExpiresAt:yyyy-MM-dd HH:mm:ss}.",
+                (int)NetFoodia.Domain.Entities.NotificationModule.NotificationType.OfferReceived,
+                relatedTaskId: task.Id,
+                relatedDonationId: task.DonationId
+            );
         }
     }
 }

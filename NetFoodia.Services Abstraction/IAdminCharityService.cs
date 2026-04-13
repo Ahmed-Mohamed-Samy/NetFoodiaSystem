@@ -10,6 +10,7 @@ namespace NetFoodia.Services_Abstraction
     public interface IAdminCharityService
     {
         Task<Result> VerifyCharityAsync(int charityId);
-        Task<Result> ActivateCharityAsync(int charityId);
+        Task<Result> DeactivateCharityAsync(int charityId);
+        Task<Result> ReactivateCharityAsync(int charityId);
     }
 }

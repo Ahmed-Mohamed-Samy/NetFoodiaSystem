@@ -38,28 +38,28 @@ namespace NetFoodia.Presentation.Controllers
             return HandleResult(result);
         }
 
-        [HttpPost("Offer/{taskId:int}")]
-        public async Task<ActionResult<bool>> OfferTask(int taskId, OfferTaskDTO dto)
-        {
-            var userId = GetUserIdFromToken();
-            var result = await _charityPickupTaskService.OfferTaskToVolunteerAsync(userId, taskId, dto.VolunteerUserId);
-            return HandleResult(result);
-        }
+        //[HttpPost("Offer/{taskId:int}")]
+        //public async Task<ActionResult<bool>> OfferTask(int taskId, OfferTaskDTO dto)
+        //{
+        //    var userId = GetUserIdFromToken();
+        //    var result = await _charityPickupTaskService.OfferTaskToVolunteerAsync(userId, taskId, dto.VolunteerUserId);
+        //    return HandleResult(result);
+        //}
 
-        [HttpPost("Assign/{taskId:int}")]
-        public async Task<ActionResult<bool>> AssignTask(int taskId, AssignTaskDTO dto)
-        {
-            var userId = GetUserIdFromToken();
-            var result = await _charityPickupTaskService.AssignTaskAsync(userId, taskId, dto.VolunteerUserId);
-            return HandleResult(result);
-        }
+        //[HttpPost("Assign/{taskId:int}")]
+        //public async Task<ActionResult<bool>> AssignTask(int taskId, AssignTaskDTO dto)
+        //{
+        //    var userId = GetUserIdFromToken();
+        //    var result = await _charityPickupTaskService.AssignTaskAsync(userId, taskId, dto.VolunteerUserId);
+        //    return HandleResult(result);
+        //}
 
-        [HttpPost("Reassign/{taskId:int}")]
-        public async Task<ActionResult<bool>> ReassignTask(int taskId)
-        {
-            var userId = GetUserIdFromToken();
-            var result = await _charityPickupTaskService.ReassignTaskAsync(userId, taskId);
-            return HandleResult(result);
-        }
+        //[HttpPost("Reassign/{taskId:int}")]
+        //public async Task<ActionResult<bool>> ReassignTask(int taskId)
+        //{
+        //    var userId = GetUserIdFromToken();
+        //    var result = await _charityPickupTaskService.ReassignTaskAsync(userId, taskId);
+        //    return HandleResult(result);
+        //}
     }
 }
