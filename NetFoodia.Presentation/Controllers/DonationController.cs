@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NetFoodia.Services_Abstraction;
 using NetFoodia.Shared.DonationDTOs;
@@ -49,7 +43,7 @@ namespace NetFoodia.Presentation.Controllers
 
         [Authorize(Roles = "Donor")]
         [HttpGet("MyDonations")]
-        public async Task<ActionResult<IEnumerable<DonationListItemDTO>>> GetMyDonations()
+        public async Task<ActionResult<IEnumerable<DonationDetailsDTO>>> GetMyDonations()
         {
             var donorId = GetUserIdFromToken();
             var result = await _donationService.GetMyDonationsAsync(donorId);

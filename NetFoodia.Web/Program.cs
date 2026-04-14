@@ -4,20 +4,24 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.ML;
 using Microsoft.IdentityModel.Tokens;
 using NetFoodia.Domain.Contracts;
 using NetFoodia.Domain.Entities.IdentityModule;
+using NetFoodia.Persistence;
 using NetFoodia.Persistence.Data.DbContexts;
 using NetFoodia.Persistence.IdentityData.DataSeed;
 using NetFoodia.Persistence.Repositories;
 using NetFoodia.Services;
 using NetFoodia.Services.MappingProfiles;
+using NetFoodia.Services.SafetyRuleEngine;
 using NetFoodia.Services.Security;
 using NetFoodia.Services.Validators.AuthenticationValidators;
 using NetFoodia.Services_Abstraction;
 using NetFoodia.Web.CustomMiddlewares;
 using NetFoodia.Web.Extensions;
 using NetFoodia.Web.Factories;
+using NetFoodia_Web;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -83,6 +87,13 @@ namespace NetFoodia.Web
         builder.Configuration.GetConnectionString("DefaultConnection")
     );
                 }
+
+                var baseUrl = isHosted
+              ? "http://netfoodia.runasp.net/"
+              : "https://localhost:7009/";
+
+                // 3. احقنها في الـ Configuration عشان الـ Resolver يشوفها
+                builder.Configuration["URLs:BaseUrl"] = baseUrl;
 
             });
             builder.Services.AddCors(options =>
@@ -163,6 +174,7 @@ namespace NetFoodia.Web
                         ApiResponseFactory.GenerateApiValidationResponse;
                 });
 
+            builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(FoodInspectionService).Assembly));
 
             #endregion
 
@@ -191,6 +203,13 @@ namespace NetFoodia.Web
             builder.Services.AddFluentValidationAutoValidation();
             builder.Services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
 
+            builder.Services.AddPredictionEnginePool<MLModel.ModelInput, MLModel.ModelOutput>()
+                .FromFile(Path.Combine(AppContext.BaseDirectory, "MLModel.mlnet"));
+
+
+            builder.Services.AddScoped<IFoodSafetyAIService, FoodSafetyAIService>();
+            builder.Services.AddScoped<RuleEngine>();
+            builder.Services.AddScoped<IFoodInspectionService, FoodInspectionService>();
             #endregion
 
             var app = builder.Build();
