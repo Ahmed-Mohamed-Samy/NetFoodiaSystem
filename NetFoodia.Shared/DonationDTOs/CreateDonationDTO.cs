@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace NetFoodia.Shared.DonationDTOs
 {
@@ -15,5 +11,6 @@ namespace NetFoodia.Shared.DonationDTOs
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
         public string? Notes { get; set; }
+        public IFormFile Image { get; set; } = default!;
     }
 }

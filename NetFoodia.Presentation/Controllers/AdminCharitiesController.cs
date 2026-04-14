@@ -1,11 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NetFoodia.Services_Abstraction;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NetFoodia.Presentation.Controllers
 {
@@ -27,10 +22,17 @@ namespace NetFoodia.Presentation.Controllers
             return HandleResult(result);
         }
 
-        [HttpPut("{id:int}/Activate")]
-        public async Task<IActionResult> Activate(int id)
+        [HttpPut("{id:int}/Deactivate")]
+        public async Task<IActionResult> Deactivate(int id)
         {
-            var result = await _adminCharityService.ActivateCharityAsync(id);
+            var result = await _adminCharityService.DeactivateCharityAsync(id);
+            return HandleResult(result);
+        }
+
+        [HttpPut("{id:int}/Reactivate")]
+        public async Task<IActionResult> Reactivate(int id)
+        {
+            var result = await _adminCharityService.ReactivateCharityAsync(id);
             return HandleResult(result);
         }
     }

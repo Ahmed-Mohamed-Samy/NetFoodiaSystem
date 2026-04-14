@@ -10,16 +10,23 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.13.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.23">
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.25">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.ML" Version="3.0.1" />
     <PackageReference Include="SciSharp.TensorFlow.Redist" Version="2.3.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NetFoodia.Persistence\NetFoodia.Persistence.csproj" />
     <ProjectReference Include="..\NetFoodia.Presentation\NetFoodia.Presentation.csproj" />
+  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.5.0" PrivateAssets="all" />
+	</ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\Images\Donations\" />
   </ItemGroup>
 </Project>

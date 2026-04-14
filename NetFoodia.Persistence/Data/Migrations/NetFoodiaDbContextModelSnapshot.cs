@@ -17,7 +17,7 @@ namespace NetFoodia.Persistence.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.23")
+                .HasAnnotation("ProductVersion", "8.0.25")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -364,6 +364,10 @@ namespace NetFoodia.Persistence.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Notes")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
@@ -507,6 +511,54 @@ namespace NetFoodia.Persistence.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("NetFoodia.Domain.Entities.InspectionModule.FoodInspection", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<double?>("AiConfidence")
+                        .HasColumnType("float");
+
+                    b.Property<bool?>("AiIsSafe")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int>("DonationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReviewedByAdminId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("RiskScore")
+                        .HasColumnType("float");
+
+                    b.Property<int>("SafetyStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DonationId")
+                        .IsUnique();
+
+                    b.ToTable("FoodInspections");
                 });
 
             modelBuilder.Entity("NetFoodia.Domain.Entities.MembershipModule.VolunteerMembership", b =>
@@ -871,6 +923,17 @@ namespace NetFoodia.Persistence.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("NetFoodia.Domain.Entities.InspectionModule.FoodInspection", b =>
+                {
+                    b.HasOne("NetFoodia.Domain.Entities.DonationModule.Donation", "Donation")
+                        .WithOne("Inspection")
+                        .HasForeignKey("NetFoodia.Domain.Entities.InspectionModule.FoodInspection", "DonationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Donation");
+                });
+
             modelBuilder.Entity("NetFoodia.Domain.Entities.MembershipModule.VolunteerMembership", b =>
                 {
                     b.HasOne("NetFoodia.Domain.Entities.CharityModule.Charity", "Charity")
@@ -977,6 +1040,11 @@ namespace NetFoodia.Persistence.Data.Migrations
                 {
                     b.Navigation("AdminProfile")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("NetFoodia.Domain.Entities.DonationModule.Donation", b =>
+                {
+                    b.Navigation("Inspection");
                 });
 
             modelBuilder.Entity("NetFoodia.Domain.Entities.IdentityModule.ApplicationUser", b =>
