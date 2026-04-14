@@ -16,5 +16,6 @@ namespace NetFoodia.Services_Abstraction
         Task<Result<bool>> OfferTaskToVolunteerAsync(string charityAdminUserId, int taskId, string volunteerUserId);
         Task<Result<bool>> AssignTaskAsync(string charityAdminUserId, int taskId, string volunteerUserId);
         Task<Result<bool>> ReassignTaskAsync(string charityAdminUserId, int taskId);
+        Task<Result<bool>> AutoOfferToVolunteersAsync(string charityAdminUserId, int taskId);
     }
 }
