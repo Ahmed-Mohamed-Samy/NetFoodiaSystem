@@ -2,12 +2,6 @@
 using NetFoodia.Domain.Entities.CharityModule;
 using NetFoodia.Domain.Entities.SharedValueObjects;
 using NetFoodia.Shared.CharityDTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace NetFoodia.Services.MappingProfiles
 {
@@ -59,7 +53,9 @@ namespace NetFoodia.Services.MappingProfiles
                     opt => opt.MapFrom(s => (NetFoodia.Shared.CharityDTOs.CharityMembershipStatus)s.MembershipStatus));
 
             CreateMap<Charity, CharityListItemDTO>()
-                .ForMember(d => d.CharityId, opt => opt.MapFrom(s => s.Id));
+                .ForMember(d => d.CharityId, opt => opt.MapFrom(s => s.Id))
+                .ForMember(d => d.IsActivated, opt => opt.MapFrom(s => s.MembershipStatus == Domain.Entities.CharityModule.CharityMembershipStatus.Active));
         }
     }
 }
+
