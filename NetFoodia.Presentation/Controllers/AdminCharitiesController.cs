@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NetFoodia.Services_Abstraction;
+using NetFoodia.Shared;
+using NetFoodia.Shared.CharityDTOs;
 
 namespace NetFoodia.Presentation.Controllers
 {
@@ -33,6 +35,15 @@ namespace NetFoodia.Presentation.Controllers
         public async Task<IActionResult> Reactivate(int id)
         {
             var result = await _adminCharityService.ReactivateCharityAsync(id);
+            return HandleResult(result);
+        }
+
+
+        [HttpGet("List")]
+        public async Task<ActionResult<PaginatedResult<CharityListItemDTO>>> List([FromQuery] PaginationParams pagination,
+                                                                          [FromQuery] string? search)
+        {
+            var result = await _adminCharityService.ListCharitiesAsync(pagination, search);
             return HandleResult(result);
         }
     }

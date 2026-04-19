@@ -23,14 +23,14 @@ namespace NetFoodia.Services.Security
         {
             var claims = new List<Claim>
             {
-                new (JwtRegisteredClaimNames.Email, user.Email!),
-                new (JwtRegisteredClaimNames.Name, user.UserName!),
-                new (ClaimTypes.NameIdentifier, user.Id)
+                new ("Email", user.Email!),
+                new ("Name", user.FullName!),
+                new ("Id", user.Id),
             };
 
             var roles = await _userManager.GetRolesAsync(user);
             foreach (var role in roles)
-                claims.Add(new(ClaimTypes.Role, role));
+                claims.Add(new("Role", role));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SecretKey));
 

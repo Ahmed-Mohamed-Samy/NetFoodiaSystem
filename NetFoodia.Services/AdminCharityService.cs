@@ -1,19 +1,25 @@
 ﻿
+using AutoMapper;
 using NetFoodia.Domain.Contracts;
 using NetFoodia.Domain.Entities.CharityModule;
 using NetFoodia.Services.Specifications.CharitySpecifications;
 using NetFoodia.Services_Abstraction;
+using NetFoodia.Shared;
+using NetFoodia.Shared.CharityDTOs;
 using NetFoodia.Shared.CommonResult;
+using CharityMembershipStatus = NetFoodia.Domain.Entities.CharityModule.CharityMembershipStatus;
 
 namespace NetFoodia.Services
 {
     public class AdminCharityService : IAdminCharityService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public AdminCharityService(IUnitOfWork unitOfWork)
+        public AdminCharityService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<Result> VerifyCharityAsync(int charityId)
@@ -78,6 +84,21 @@ namespace NetFoodia.Services
             await _unitOfWork.SaveChangesAsync();
 
             return Result.OK();
+        }
+
+        public async Task<Result<PaginatedResult<CharityListItemDTO>>> ListCharitiesAsync(PaginationParams pagination, string? search)
+        {
+            var charityRepo = _unitOfWork.GetRepository<Charity>();
+
+            var listSpec = new CharitiesListSpec(search, pagination.PageIndex, pagination.PageSize);
+            var countSpec = new CharitiesCountSpec(search);
+
+            var charities = await charityRepo.GetAllAsync(listSpec);
+            var total = await charityRepo.CountAsync(countSpec);
+
+            var items = _mapper.Map<List<CharityListItemDTO>>(charities);
+
+            return new PaginatedResult<CharityListItemDTO>(pagination.PageIndex, pagination.PageSize, total, items);
         }
     }
 }
