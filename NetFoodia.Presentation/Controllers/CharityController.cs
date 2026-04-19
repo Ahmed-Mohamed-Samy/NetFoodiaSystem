@@ -3,11 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using NetFoodia.Services_Abstraction;
 using NetFoodia.Shared;
 using NetFoodia.Shared.CharityDTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NetFoodia.Presentation.Controllers
 {
@@ -54,11 +49,12 @@ namespace NetFoodia.Presentation.Controllers
             return HandleResult(result);
         }
 
+        [Authorize(Roles = "Donor,Volunteer")]
         [HttpGet("List")]
         public async Task<ActionResult<PaginatedResult<CharityListItemDTO>>> List([FromQuery] PaginationParams pagination,
                                                                                   [FromQuery] string? search)
         {
-            var result = await _charityService.ListCharitiesAsync(pagination, search);
+            var result = await _charityService.ListActiveAndVerfiedCharitiesAsync(pagination, search);
             return HandleResult(result);
         }
 

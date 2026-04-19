@@ -102,12 +102,12 @@ namespace NetFoodia.Services
             return _mapper.Map<CharityDetailsDTO>(charity);
         }
 
-        public async Task<Result<PaginatedResult<CharityListItemDTO>>> ListCharitiesAsync(PaginationParams pagination, string? search)
+        public async Task<Result<PaginatedResult<CharityListItemDTO>>> ListActiveAndVerfiedCharitiesAsync(PaginationParams pagination, string? search)
         {
             var charityRepo = _unitOfWork.GetRepository<Charity>();
 
-            var listSpec = new CharitiesListSpec(search, pagination.PageIndex, pagination.PageSize);
-            var countSpec = new CharitiesCountSpec(search);
+            var listSpec = new ActiveAndVerfiedCharitiesListSpec(search, pagination.PageIndex, pagination.PageSize);
+            var countSpec = new ActiveAndVerfiedCharitiesCountSpec(search);
 
             var charities = await charityRepo.GetAllAsync(listSpec);
             var total = await charityRepo.CountAsync(countSpec);

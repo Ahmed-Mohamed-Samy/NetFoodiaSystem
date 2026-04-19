@@ -129,7 +129,7 @@ namespace NetFoodia.Web
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-
+                    RoleClaimType = "Role",
                     ValidIssuer = jwt.Issuer,
                     ValidAudience = jwt.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SecretKey))
@@ -210,6 +210,7 @@ namespace NetFoodia.Web
             builder.Services.AddScoped<IFoodSafetyAIService, FoodSafetyAIService>();
             builder.Services.AddScoped<RuleEngine>();
             builder.Services.AddScoped<IFoodInspectionService, FoodInspectionService>();
+            builder.Services.AddScoped<IDashboardService, DashboardService>();
             #endregion
 
             var app = builder.Build();
