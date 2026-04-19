@@ -70,9 +70,9 @@ namespace NetFoodia.Presentation.Controllers
             return ValidationProblem(modelState);
         }
 
-        protected string GetEmailFromToken() => User.FindFirstValue(ClaimTypes.Email)!;
-        protected string GetUserIdFromToken() => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        protected string GetRoleFromToken() => User.FindFirstValue(ClaimTypes.Role)!;
+        protected string GetEmailFromToken() => User.FindFirstValue("Email")!;
+        protected string GetUserIdFromToken() => User.FindFirstValue("Id")!;
+        protected string GetRoleFromToken() => User.FindFirstValue("Role")!;
 
     }
 }
