@@ -13,5 +13,7 @@ namespace NetFoodia.Domain.Entities.ProfileModule
         public string Address { get; set; } = default!;
         public string? VehicleType { get; set; }
         public DateTime LastActiveAt { get; set; } = DateTime.UtcNow;
+        public bool IsVerified { get; set; }
+
     }
 }

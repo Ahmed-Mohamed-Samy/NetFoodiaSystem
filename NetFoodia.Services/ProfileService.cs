@@ -94,7 +94,7 @@ namespace NetFoodia.Services
 
 
                 profile.Address ??= string.Empty;
-
+                profile.IsVerified = true;
                 await repo.AddAsync(profile);
             }
             else
