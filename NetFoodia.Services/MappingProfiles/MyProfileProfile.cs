@@ -50,6 +50,7 @@ namespace NetFoodia.Services.MappingProfiles
 
             CreateMap<UpsertVolunteerProfileDTO, VolunteerProfile>()
                     .ForMember(d => d.Id, opt => opt.Ignore())
+                    .ForMember(d => d.IsVerified, opt => opt.Ignore())
                     .ForMember(d => d.UserId, opt => opt.Ignore())
                     .ForMember(d => d.User, opt => opt.Ignore())
                     .ForMember(d => d.Status, opt => opt.Ignore())

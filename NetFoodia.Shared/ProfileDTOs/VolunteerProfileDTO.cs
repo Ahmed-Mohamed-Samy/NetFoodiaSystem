@@ -7,5 +7,6 @@
         public DateTime LastActiveAt { get; set; }
         public GeoLocationDTO? Location { get; set; }
         public string Address { get; set; } = default!;
+        public bool IsVerified { get; set; }
     }
 }
