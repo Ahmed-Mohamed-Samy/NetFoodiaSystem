@@ -8,6 +8,7 @@ namespace NetFoodia.Domain.Entities.IdentityModule
         public string Role { get; set; } = default!;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsActive { get; set; }
+        public bool IsCompleted { get; set; }
         public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     }
 }
