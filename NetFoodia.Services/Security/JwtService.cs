@@ -26,6 +26,7 @@ namespace NetFoodia.Services.Security
                 new ("Email", user.Email!),
                 new ("Name", user.FullName!),
                 new ("Id", user.Id),
+                new Claim("IsCompleted", user.IsCompleted.ToString())
             };
 
             var roles = await _userManager.GetRolesAsync(user);

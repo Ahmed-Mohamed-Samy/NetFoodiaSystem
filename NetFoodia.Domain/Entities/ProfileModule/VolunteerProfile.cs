@@ -7,7 +7,6 @@ namespace NetFoodia.Domain.Entities.ProfileModule
     {
         public string UserId { get; set; } = default!;
         public ApplicationUser User { get; set; } = default!;
-
         public VolunteerStatus Status { get; set; }
         public GeoLocation? Location { get; set; }
         public string Address { get; set; } = default!;

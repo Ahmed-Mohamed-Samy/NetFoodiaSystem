@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using NetFoodia.Domain.Contracts;
 using NetFoodia.Domain.Entities.CharityModule;
+using NetFoodia.Domain.Entities.IdentityModule;
 using NetFoodia.Domain.Entities.ProfileModule;
 using NetFoodia.Services.Specifications.ProfileSpecifications;
 using NetFoodia.Services_Abstraction;
@@ -14,11 +16,13 @@ namespace NetFoodia.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ProfileService(IUnitOfWork unitOfWork, IMapper mapper)
+        public ProfileService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _userManager = userManager;
         }
         public async Task<Result<MyProfileDTO>> GetMyProfileAsync(string userId, string role)
         {
@@ -58,6 +62,8 @@ namespace NetFoodia.Services
                 profile.UserId = userId;
                 profile.IsVerified = false;
                 profile.ReliabilityScore = 0m;
+                var user = await _userManager.FindByIdAsync(userId);
+                user!.IsCompleted = true;
                 await donorRepo.AddAsync(profile);
             }
             else
@@ -95,6 +101,8 @@ namespace NetFoodia.Services
 
                 profile.Address ??= string.Empty;
                 profile.IsVerified = true;
+                var user = await _userManager.FindByIdAsync(userId);
+                user!.IsCompleted = true;
                 await repo.AddAsync(profile);
             }
             else
