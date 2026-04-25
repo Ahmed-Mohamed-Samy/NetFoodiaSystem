@@ -8,6 +8,7 @@ namespace NetFoodia.Shared.DonationDTOs
 {
     public class AcceptedUnassignedDonationDTO
     {
+        public string PictureUrl { get; set; } = default!;
         public int DonationId { get; set; }
         public string DonorName { get; set; } = default!;
         public string FoodType { get; set; } = default!;

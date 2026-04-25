@@ -49,7 +49,8 @@ namespace NetFoodia.Services.MappingProfiles
                 .ForMember(d => d.DonationId, opt => opt.MapFrom(s => s.Id))
                 .ForMember(d => d.DonorName, opt => opt.MapFrom(s => s.Donor.User.FullName))
                 .ForMember(d => d.Latitude, opt => opt.MapFrom(s => s.PickupLocation.Latitude))
-                .ForMember(d => d.Longitude, opt => opt.MapFrom(s => s.PickupLocation.Longitude));
+                .ForMember(d => d.Longitude, opt => opt.MapFrom(s => s.PickupLocation.Longitude))
+                .ForMember(d => d.PictureUrl, opt => opt.MapFrom<AcceptedUnassignedDonationPictureUrlResolver>());
         }
     }
 }
