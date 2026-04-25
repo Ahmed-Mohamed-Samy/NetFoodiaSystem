@@ -132,5 +132,19 @@ namespace NetFoodia.Services
 
             return charityAdmin.CharityId;
         }
+
+        public async Task<Result<MyCharityStatusDTO>> GetMyCharityStatusAsync(string charityAdminUserId)
+        {
+            var profileRepo = _unitOfWork.GetRepository<CharityAdminProfile>();
+
+            var profile = await profileRepo.FirstOrDefaultAsync(
+                new CharityAdminProfileByUserSpec(charityAdminUserId));
+
+            if (profile is null || profile.Charity is null)
+                return Error.NotFound("Charity.NotFound", "Charity not found for current admin");
+
+            var dto = _mapper.Map<MyCharityStatusDTO>(profile.Charity);
+            return dto;
+        }
     }
 }

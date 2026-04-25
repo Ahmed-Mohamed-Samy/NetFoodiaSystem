@@ -44,6 +44,12 @@ namespace NetFoodia.Services.MappingProfiles
             CreateMap<Donation, DonationStatusDTO>()
                 .ForMember(d => d.DonationId, opt => opt.MapFrom(s => s.Id))
                 .ForMember(d => d.Status, opt => opt.MapFrom(s => (DonationStatusDTOEnum)(int)s.Status));
+
+            CreateMap<Donation, AcceptedUnassignedDonationDTO>()
+                .ForMember(d => d.DonationId, opt => opt.MapFrom(s => s.Id))
+                .ForMember(d => d.DonorName, opt => opt.MapFrom(s => s.Donor.User.FullName))
+                .ForMember(d => d.Latitude, opt => opt.MapFrom(s => s.PickupLocation.Latitude))
+                .ForMember(d => d.Longitude, opt => opt.MapFrom(s => s.PickupLocation.Longitude));
         }
     }
 }

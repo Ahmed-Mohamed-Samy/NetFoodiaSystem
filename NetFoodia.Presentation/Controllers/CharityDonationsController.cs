@@ -53,5 +53,14 @@ namespace NetFoodia.Presentation.Controllers
             var result = await _charityDonationService.MarkDonationExpiredAsync(userId, donationId);
             return HandleResult(result);
         }
+
+       
+        [HttpGet("Accepted-Unassigned")]
+        public async Task<ActionResult<IEnumerable<AcceptedUnassignedDonationDTO>>> ListAcceptedUnassigned()
+        {
+            var userId = GetUserIdFromToken();
+            var result = await _charityDonationService.ListAcceptedUnassignedDonationsAsync(userId);
+            return HandleResult(result);
+        }
     }
 }

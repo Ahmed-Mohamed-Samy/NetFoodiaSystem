@@ -15,5 +15,6 @@ namespace NetFoodia.Services_Abstraction
         Task<Result<bool>> AcceptDonationAsync(string charityAdminUserId, int donationId);
         Task<Result<bool>> RejectDonationAsync(string charityAdminUserId, int donationId, string reason);
         Task<Result<bool>> MarkDonationExpiredAsync(string charityAdminUserId, int donationId);
+        Task<Result<IEnumerable<AcceptedUnassignedDonationDTO>>> ListAcceptedUnassignedDonationsAsync(string charityAdminUserId);
     }
 }
