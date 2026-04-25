@@ -9,6 +9,8 @@
         public int TotalVolunteers { get; set; }
 
 
-        public List<ChartItemDTO> MonthlyAnalysis { get; set; } = [];
+        public List<ChartItemDTO> DonationsPerMonth { get; set; } = [];
+        public List<ChartItemDTO> FoodWeightPerMonth { get; set; } = [];
+        //public List<ChartItemDTO> FoodSafetyStats { get; set; } = [];
     }
 }

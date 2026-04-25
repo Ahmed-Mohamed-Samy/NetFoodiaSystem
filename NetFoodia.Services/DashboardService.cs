@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using NetFoodia.Domain.Contracts;
-using NetFoodia.Domain.Entities.DonationModule;
 using NetFoodia.Domain.Entities.MembershipModule;
 using NetFoodia.Services.Hubs;
 using NetFoodia.Services.Specifications.DashboardSpecifications;
@@ -21,30 +20,48 @@ namespace NetFoodia.Services
             _unitOfWork = unitOfWork;
             _hubContext = hubContext;
         }
-
         public async Task<Result<DashboardStatsDTO>> GetStatsAsync(int? charityId = null)
         {
-
             var volunteerSpec = new VolunteersByCharitySpecification(charityId);
-            var totalVolunteers = await _unitOfWork.GetRepository<VolunteerMembership>().CountAsync(volunteerSpec);
+            var totalVolunteers = await _unitOfWork
+                .GetRepository<VolunteerMembership>()
+                .CountAsync(volunteerSpec);
 
+            var PendingvolunteerSpec = new PendingRequestsSpecification(charityId);
+            var totalPendingRequests = await _unitOfWork
+                .GetRepository<VolunteerMembership>()
+                .CountAsync(PendingvolunteerSpec);
 
-            var donationSpec = new DonationsWithCharitySpecification(charityId);
-            var donations = await _unitOfWork.GetRepository<Donation>().GetAllAsync(donationSpec);
+            var monthlyStats = await _unitOfWork
+                .DashboardRepository
+                .GetDonationsPerMonthAsync(charityId);
+
+            var (totalDonations, totalFoodWeight) = await _unitOfWork
+                .DashboardRepository
+                .GetTotalsAsync(charityId);
+
+            var donationsChart = monthlyStats
+                .Select(x => new ChartItemDTO
+                {
+                    Label = CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(x.Month),
+                    Value = x.Count
+                }).ToList();
+
+            var weightChart = monthlyStats
+                .Select(x => new ChartItemDTO
+                {
+                    Label = CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(x.Month),
+                    Value = x.Weight
+                }).ToList();
 
             return new DashboardStatsDTO
             {
-                TotalDonations = donations.Count(),
-                TotalFoodWeight = donations.Sum(d => d.Quantity),
+                TotalDonations = totalDonations,
+                TotalFoodWeight = totalFoodWeight,
                 TotalVolunteers = totalVolunteers,
-
-                MonthlyAnalysis = donations
-                    .GroupBy(d => d.CreatedAt.Month)
-                    .Select(g => new ChartItemDTO
-                    {
-                        Label = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(g.Key),
-                        Value = g.Count()
-                    }).OrderBy(x => x.Label).ToList()
+                PendingRequests = totalPendingRequests,
+                DonationsPerMonth = donationsChart,
+                FoodWeightPerMonth = weightChart
             };
         }
 

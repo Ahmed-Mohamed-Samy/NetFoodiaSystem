@@ -9,11 +9,13 @@ namespace NetFoodia.Persistence.Repositories
         private readonly NetFoodiaDbContext _dbContext;
         private readonly Dictionary<Type, object> _repositories = [];
         public IRefreshTokenRepository RefreshTokenRepository { get; }
+        public IDashboardRepository DashboardRepository { get; }
 
-        public UnitOfWork(NetFoodiaDbContext dbContext, IRefreshTokenRepository refreshTokenRepository)
+        public UnitOfWork(NetFoodiaDbContext dbContext, IRefreshTokenRepository refreshTokenRepository, IDashboardRepository dashboardRepository)
         {
             _dbContext = dbContext;
             RefreshTokenRepository = refreshTokenRepository;
+            DashboardRepository = dashboardRepository;
         }
 
 
