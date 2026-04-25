@@ -55,6 +55,13 @@ namespace NetFoodia.Services.MappingProfiles
             CreateMap<Charity, CharityListItemDTO>()
                 .ForMember(d => d.CharityId, opt => opt.MapFrom(s => s.Id))
                 .ForMember(d => d.IsActivated, opt => opt.MapFrom(s => s.MembershipStatus == Domain.Entities.CharityModule.CharityMembershipStatus.Active));
+
+            CreateMap<Charity, MyCharityStatusDTO>()
+                .ForMember(d => d.CharityId, opt => opt.MapFrom(s => s.Id))
+                .ForMember(d => d.MembershipStatus,
+                           opt => opt.MapFrom(s => (NetFoodia.Shared.CharityDTOs.CharityMembershipStatus)s.MembershipStatus))
+                .ForMember(d => d.IsActive,
+                           opt => opt.MapFrom(s => s.IsVerified && s.MembershipStatus == NetFoodia.Domain.Entities.CharityModule.CharityMembershipStatus.Active));
         }
     }
 }

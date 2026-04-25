@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using NetFoodia.Domain.Contracts;
 using NetFoodia.Domain.Entities.CharityModule;
+using NetFoodia.Domain.Entities.DeliveryModule;
 using NetFoodia.Domain.Entities.DonationModule;
 using NetFoodia.Services.Specifications.CharitySpecifications;
+using NetFoodia.Services.Specifications.DeliverySpecifications;
 using NetFoodia.Services.Specifications.DonationSpecifications;
 using NetFoodia.Services_Abstraction;
 using NetFoodia.Shared.CommonResult;
@@ -115,6 +117,35 @@ namespace NetFoodia.Services
             var profile = await repo.FirstOrDefaultAsync(new CharityAdminProfileByUserSpec(userId));
 
             return profile?.CharityId;
+        }
+
+
+        public async Task<Result<IEnumerable<AcceptedUnassignedDonationDTO>>> ListAcceptedUnassignedDonationsAsync(string charityAdminUserId)
+        {
+            var charityId = await GetCharityIdForAdmin(charityAdminUserId);
+            if (charityId is null)
+                return Error.NotFound("Charity.NotFound", "Charity not found for current admin");
+
+            var donationRepo = _unitOfWork.GetRepository<Donation>();
+            var taskRepo = _unitOfWork.GetRepository<PickupTask>();
+
+            var donations = await donationRepo.GetAllAsync(
+                new AcceptedUnassignedDonationsForCharitySpec(charityId.Value));
+
+            var filteredDonations = new List<Donation>();
+
+            foreach (var donation in donations)
+            {
+                var hasPickupTask = await taskRepo.AnyAsync(
+                    new TaskByDonationSpecification(donation.Id));
+
+                if (!hasPickupTask)
+                    filteredDonations.Add(donation);
+            }
+
+            var data = _mapper.Map<IEnumerable<AcceptedUnassignedDonationDTO>>(filteredDonations);
+
+            return Result<IEnumerable<AcceptedUnassignedDonationDTO>>.OK(data);
         }
     }
 }
