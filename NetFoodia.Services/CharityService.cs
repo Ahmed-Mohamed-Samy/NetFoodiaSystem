@@ -107,6 +107,20 @@ namespace NetFoodia.Services
 
             return _mapper.Map<CharityDetailsDTO>(charity);
         }
+        public async Task<Result<CharityDetailsDTO>> GetMyCharityDetailsAsync(string charityAdminUserId)
+        {
+            var profileRepo = _unitOfWork.GetRepository<CharityAdminProfile>();
+
+            var profile = await profileRepo.FirstOrDefaultAsync(
+                new CharityAdminProfileByUserSpec(charityAdminUserId));
+
+            if (profile is null || profile.Charity is null)
+                return Error.NotFound("Charity.NotFound", "Charity not found for current admin");
+
+            var dto = _mapper.Map<CharityDetailsDTO>(profile.Charity);
+
+            return dto;
+        }
 
         public async Task<Result<PaginatedResult<CharityListItemDTO>>> ListActiveAndVerfiedCharitiesAsync(PaginationParams pagination, string? search)
         {

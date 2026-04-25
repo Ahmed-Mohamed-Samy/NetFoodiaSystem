@@ -42,6 +42,15 @@ namespace NetFoodia.Presentation.Controllers
             return HandleResult(result);
         }
 
+        [Authorize(Roles = "CharityAdmin")]
+        [HttpGet("MyDetails")]
+        public async Task<ActionResult<CharityDetailsDTO>> MyDetails()
+        {
+            var userId = GetUserIdFromToken();
+            var result = await _charityService.GetMyCharityDetailsAsync(userId);
+            return HandleResult(result);
+        }
+
         [HttpGet("Details/{charityId:int}")]
         public async Task<ActionResult<CharityDetailsDTO>> Details(int charityId)
         {
@@ -58,7 +67,7 @@ namespace NetFoodia.Presentation.Controllers
             return HandleResult(result);
         }
 
-        
+        [Authorize(Roles = "CharityAdmin")]
         [HttpGet("MyStatus")]
         public async Task<ActionResult<MyCharityStatusDTO>> MyStatus()
         {

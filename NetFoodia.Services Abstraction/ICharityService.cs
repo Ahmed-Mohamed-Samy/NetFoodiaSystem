@@ -14,5 +14,6 @@ namespace NetFoodia.Services_Abstraction
         Task<Result<PaginatedResult<CharityListItemDTO>>> ListActiveAndVerfiedCharitiesAsync(PaginationParams pagination, string? search);
         Task<Result<int>> GetCharityId(string charityAdminId);
         Task<Result<MyCharityStatusDTO>> GetMyCharityStatusAsync(string charityAdminUserId);
+        Task<Result<CharityDetailsDTO>> GetMyCharityDetailsAsync(string charityAdminUserId);
     }
 }
