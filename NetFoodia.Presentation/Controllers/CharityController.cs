@@ -58,5 +58,13 @@ namespace NetFoodia.Presentation.Controllers
             return HandleResult(result);
         }
 
+        
+        [HttpGet("MyStatus")]
+        public async Task<ActionResult<MyCharityStatusDTO>> MyStatus()
+        {
+            var userId = GetUserIdFromToken();
+            var result = await _charityService.GetMyCharityStatusAsync(userId);
+            return HandleResult(result);
+        }
     }
 }
