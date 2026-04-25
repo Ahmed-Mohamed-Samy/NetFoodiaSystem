@@ -96,16 +96,29 @@ namespace NetFoodia.Web
                 builder.Configuration["URLs:BaseUrl"] = baseUrl;
 
             });
+            //builder.Services.AddCors(options =>
+            //    {
+            //        options.AddPolicy(
+            //            "DevelopmentPolicy",
+            //            builder =>
+            //            {
+            //                builder.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod();
+            //            }
+            //        );
+            //    });
             builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("DevelopmentPolicy", policy =>
                 {
-                    options.AddPolicy(
-                        "DevelopmentPolicy",
-                        builder =>
-                        {
-                            builder.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod();
-                        }
-                    );
+                    policy
+                        .WithOrigins("http://localhost:4200")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
                 });
+            });
+
+
 
             builder.Services.AddIdentityCore<ApplicationUser>()
                                 .AddRoles<IdentityRole>()
