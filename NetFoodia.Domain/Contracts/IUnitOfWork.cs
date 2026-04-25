@@ -7,6 +7,7 @@ namespace NetFoodia.Domain.Contracts
         Task<int> SaveChangesAsync();
         IGenericRepository<TEntity> GetRepository<TEntity>() where TEntity : BaseEntity;
         IRefreshTokenRepository RefreshTokenRepository { get; }
+        IDashboardRepository DashboardRepository { get; }
 
     }
 }

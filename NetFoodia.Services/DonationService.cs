@@ -18,12 +18,14 @@ namespace NetFoodia.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IDashboardService _dashboardService;
 
-        public DonationService(IUnitOfWork unitOfWork, IMapper mapper, IWebHostEnvironment webHostEnvironment)
+        public DonationService(IUnitOfWork unitOfWork, IMapper mapper, IWebHostEnvironment webHostEnvironment, IDashboardService dashboardService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _webHostEnvironment = webHostEnvironment;
+            _dashboardService = dashboardService;
         }
 
         public async Task<Result<DonationDetailsDTO>> CreateDonationAsync(string donorId, int charityId, CreateDonationDTO dto)
@@ -72,6 +74,8 @@ namespace NetFoodia.Services
 
             var savedDonation = await donationRepo.GetByIdAsync(new DonationByIdSpec(donation.Id));
             var donationDto = _mapper.Map<DonationDetailsDTO>(savedDonation);
+
+            await _dashboardService.SendRealTimeUpdate(donationDto.CharityId);
 
             return donationDto;
         }

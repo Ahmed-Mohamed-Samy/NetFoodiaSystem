@@ -3,6 +3,6 @@
     public class ChartItemDTO
     {
         public string Label { get; set; } = default!;
-        public int Value { get; set; }
+        public double Value { get; set; }
     }
 }
