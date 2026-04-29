@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -224,6 +224,7 @@ namespace NetFoodia.Web
             builder.Services.AddScoped<RuleEngine>();
             builder.Services.AddScoped<IFoodInspectionService, FoodInspectionService>();
             builder.Services.AddScoped<IDashboardService, DashboardService>();
+            builder.Services.AddScoped<IDonationReportService, DonationReportService>();
             #endregion
 
             var app = builder.Build();

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
 using NetFoodia.Domain.Contracts;
 using NetFoodia.Domain.Entities.CharityModule;
@@ -10,6 +10,7 @@ using NetFoodia.Services_Abstraction;
 using NetFoodia.Shared.CommonResult;
 using NetFoodia.Shared.DonationDTOs;
 using DonationStatus = NetFoodia.Domain.Entities.DonationModule.DonationStatus;
+using UnitType      = NetFoodia.Shared.DonationDTOs.UnitType;
 
 namespace NetFoodia.Services
 {
@@ -45,6 +46,13 @@ namespace NetFoodia.Services
             donation.DonorId = donorId;
             donation.CharityId = charityId;
             donation.Status = DonationStatus.Pending;
+
+            // Apply donor's optional UnitType override before running the policy.
+            if (dto.UnitType.HasValue && dto.UnitType.Value != 0)
+                donation.UnitType = dto.UnitType.Value;
+
+            // Derives ExpirationTime from FoodType + PreparedTime; resolves UnitType if still unset.
+            donation.ApplyFoodPolicy();
             donation.UrgencyScore = CalculateUrgencyScore(donation.ExpirationTime);
 
             if (dto.Image is not null)
@@ -88,6 +96,12 @@ namespace NetFoodia.Services
                 return Result.Fail(Error.Validation("Donation.InvalidState", "Only Pending donation can be edited"));
 
             _mapper.Map(dto, donation);
+
+            // Re-apply donor's optional UnitType override, then re-derive ExpirationTime.
+            if (dto.UnitType.HasValue && dto.UnitType.Value != 0)
+                donation.UnitType = dto.UnitType.Value;
+
+            donation.ApplyFoodPolicy();
             donation.UrgencyScore = CalculateUrgencyScore(donation.ExpirationTime);
 
             donationRepo.Update(donation);

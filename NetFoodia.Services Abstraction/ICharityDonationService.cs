@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,5 +16,6 @@ namespace NetFoodia.Services_Abstraction
         Task<Result<bool>> RejectDonationAsync(string charityAdminUserId, int donationId, string reason);
         Task<Result<bool>> MarkDonationExpiredAsync(string charityAdminUserId, int donationId);
         Task<Result<IEnumerable<AcceptedUnassignedDonationDTO>>> ListAcceptedUnassignedDonationsAsync(string charityAdminUserId);
+        Task<Result<bool>> ConfirmReceiptAsync(string charityAdminUserId, int donationId, ConfirmReceiptDTO dto);
     }
 }
