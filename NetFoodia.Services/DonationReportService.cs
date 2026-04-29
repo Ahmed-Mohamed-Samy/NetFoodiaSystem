@@ -1,6 +1,5 @@
 using NetFoodia.Domain.Contracts;
 using NetFoodia.Domain.Entities.DonationModule;
-using NetFoodia.Services.Specifications.DashboardSpecifications;
 using NetFoodia.Services.Specifications.DonationSpecifications;
 using NetFoodia.Services_Abstraction;
 using NetFoodia.Shared.CommonResult;
@@ -12,9 +11,8 @@ namespace NetFoodia.Services
     /// Generates donation reports grouped by <see cref="UnitType"/> (Kilos / Meals)
     /// with a nested breakdown by <see cref="FoodType"/>.
     ///
-    /// All grouping and aggregation is performed in-memory after fetching the filtered
-    /// donation set so the query can reuse the existing generic repository + specification
-    /// infrastructure without custom SQL projections.
+    /// All filtering — charity, date-range, UnitType, FoodType — is pushed to the
+    /// database via <see cref="DonationReportSpecification"/>. No in-memory filtering.
     /// </summary>
     public class DonationReportService : IDonationReportService
     {
@@ -29,24 +27,25 @@ namespace NetFoodia.Services
         public async Task<Result<DonationUnitTypeReportDTO>> GetDonationsByUnitTypeAsync(
             int?      charityId = null,
             DateTime? from      = null,
-            DateTime? to        = null)
+            DateTime? to        = null,
+            UnitType? unitType  = null,
+            FoodType? foodType  = null)
         {
-            // ── 1. Fetch ──────────────────────────────────────────────────────────
-            var spec = new DonationsWithCharitySpecification(charityId);
-            var all  = await _unitOfWork.GetRepository<Donation>().GetAllAsync(spec);
+            // ── 1. Normalise date bounds to UTC ───────────────────────────────────
+            var fromUtc = from?.ToUniversalTime();
+            var toUtc   = to?.ToUniversalTime();
 
-            // ── 2. Apply optional date-range filter in-memory ────────────────────
-            IEnumerable<Donation> donations = all;
+            // ── 2. DB query — all filters resolved by EF Core inside SQL WHERE ────
+            var spec = new DonationReportSpecification(
+                charityId: charityId,
+                from:      fromUtc,
+                to:        toUtc,
+                unitType:  unitType,
+                foodType:  foodType);
 
-            if (from.HasValue)
-                donations = donations.Where(d => d.CreatedAt >= from.Value.ToUniversalTime());
+            var list = (await _unitOfWork.GetRepository<Donation>().GetAllAsync(spec)).ToList();
 
-            if (to.HasValue)
-                donations = donations.Where(d => d.CreatedAt <= to.Value.ToUniversalTime());
-
-            var list = donations.ToList();
-
-            // ── 3. Group by UnitType → then by FoodType ───────────────────────────
+            // ── 3. In-memory grouping (no filtering here — data already scoped) ───
             var now    = DateTime.UtcNow;
             var groups = list
                 .GroupBy(d => d.UnitType)
@@ -73,20 +72,21 @@ namespace NetFoodia.Services
                         ByFoodType     = byFoodType
                     };
                 })
-                // Stable ordering: Kilos first, Meals second
-                .OrderBy(g => g.UnitType)
+                .OrderBy(g => g.UnitType)   // Stable: Kilos before Meals
                 .ToList();
 
             // ── 4. Assemble report ────────────────────────────────────────────────
             var report = new DonationUnitTypeReportDTO
             {
-                From                 = from,
-                To                   = to,
-                CharityId            = charityId,
-                GeneratedAt          = now,
-                GrandTotalDonations  = list.Count,
-                GrandTotalQuantity   = list.Sum(d => d.Quantity),
-                Groups               = groups
+                From                    = from,
+                To                      = to,
+                CharityId               = charityId,
+                AppliedUnitTypeFilter   = unitType?.ToString(),
+                AppliedFoodTypeFilter   = foodType?.ToString(),
+                GeneratedAt             = now,
+                GrandTotalDonations     = list.Count,
+                GrandTotalQuantity      = list.Sum(d => d.Quantity),
+                Groups                  = groups
             };
 
             return Result<DonationUnitTypeReportDTO>.OK(report);

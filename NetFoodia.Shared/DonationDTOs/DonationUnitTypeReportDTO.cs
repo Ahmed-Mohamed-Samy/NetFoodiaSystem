@@ -58,6 +58,16 @@ namespace NetFoodia.Shared.DonationDTOs
         /// </summary>
         public int? CharityId { get; set; }
 
+        /// <summary>
+        /// The UnitType filter that was applied, if any ("Kilos" / "Meals" / null = all).
+        /// </summary>
+        public string? AppliedUnitTypeFilter { get; set; }
+
+        /// <summary>
+        /// The FoodType filter that was applied, if any (e.g. "CookedMeal" / null = all).
+        /// </summary>
+        public string? AppliedFoodTypeFilter { get; set; }
+
         /// <summary>UTC timestamp when this report was generated.</summary>
         public DateTime GeneratedAt { get; set; } = DateTime.UtcNow;
 
