@@ -4,6 +4,7 @@ using NetFoodia.Services.Specifications.DonationSpecifications;
 using NetFoodia.Services_Abstraction;
 using NetFoodia.Shared.CommonResult;
 using NetFoodia.Shared.DonationDTOs;
+using DonationStatus = NetFoodia.Domain.Entities.DonationModule.DonationStatus;
 
 namespace NetFoodia.Services
 {
@@ -58,8 +59,10 @@ namespace NetFoodia.Services
                             FoodType      = ftGroup.Key.ToString(),
                             DonationCount = ftGroup.Count(),
                             TotalQuantity = ftGroup.Sum(d => d.Quantity),
-                            AverageShelfLifeRemainingHours = Math.Round(
-                                ftGroup.Average(d => (d.ExpirationTime - now).TotalHours), 2)
+                            AverageShelfLifeRemainingHours = ftGroup.Any(d => d.ExpirationTime > now)
+                                ? Math.Round(ftGroup.Where(d => d.ExpirationTime > now).Average(d => (d.ExpirationTime - now).TotalHours), 2)
+                                : 0,
+                            ExpiredCount = ftGroup.Count(d => d.ExpirationTime < now || d.Status == DonationStatus.Expired)
                         })
                         .OrderBy(g => g.FoodType)
                         .ToList();

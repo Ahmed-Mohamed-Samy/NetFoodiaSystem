@@ -11,7 +11,7 @@ namespace NetFoodia.Domain.Entities.DonationModule
         // Default shelf-life windows per food category (in hours from PreparedTime)
         private static readonly Dictionary<FoodType, double> _shelfLifeHours = new()
         {
-            { FoodType.CookedMeal,    4   },   // hot/cooked food spoils fastest
+            { FoodType.CookedMeal,    12   },   // hot/cooked food spoils fastest
             { FoodType.Perishable,    24  },   // raw meat, dairy, fresh produce
             { FoodType.BakedGoods,    48  },   // bread, pastries
             { FoodType.Beverage,      72  },   // juices, soft drinks

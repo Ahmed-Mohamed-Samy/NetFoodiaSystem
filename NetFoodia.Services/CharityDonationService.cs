@@ -52,6 +52,14 @@ namespace NetFoodia.Services
             if (donation.Status != DonationStatus.Pending)
                 return Error.Validation("Donation.InvalidState", "Only Pending donation can be accepted");
 
+            if (DateTime.UtcNow > donation.ExpirationTime)
+            {
+                donation.Status = DonationStatus.Expired;
+                repo.Update(donation);
+                await _unitOfWork.SaveChangesAsync();
+                return Error.Validation("Donation.Expired", "Donation has expired");
+            }
+
             donation.Status = DonationStatus.Accepted;
             donation.AcceptedAt = DateTime.UtcNow;
 
@@ -163,6 +171,14 @@ namespace NetFoodia.Services
             // Assuming either InTransit or ReadyForPickup depending on the flow
             if (donation.Status != DonationStatus.InTransit && donation.Status != DonationStatus.ReadyForPickup)
                 return Error.Validation("Donation.InvalidState", "Only donations InTransit or ReadyForPickup can be confirmed");
+
+            if (DateTime.UtcNow > donation.ExpirationTime)
+            {
+                donation.Status = DonationStatus.Expired;
+                repo.Update(donation);
+                await _unitOfWork.SaveChangesAsync();
+                return Error.Validation("Donation.Expired", "Donation has expired");
+            }
 
             donation.Status = DonationStatus.Completed;
             if (!string.IsNullOrWhiteSpace(dto.Notes))

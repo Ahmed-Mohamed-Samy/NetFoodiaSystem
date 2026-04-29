@@ -21,6 +21,9 @@ namespace NetFoodia.Shared.DonationDTOs
         /// Negative values indicate that these donations are already past expiry.
         /// </summary>
         public double AverageShelfLifeRemainingHours { get; set; }
+
+        /// <summary>Number of donations in this group that have expired.</summary>
+        public int ExpiredCount { get; set; }
     }
 
     /// <summary>
