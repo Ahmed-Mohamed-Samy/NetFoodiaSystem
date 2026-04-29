@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -60,6 +60,14 @@ namespace NetFoodia.Presentation.Controllers
         {
             var userId = GetUserIdFromToken();
             var result = await _charityDonationService.ListAcceptedUnassignedDonationsAsync(userId);
+            return HandleResult(result);
+        }
+
+        [HttpPost("ConfirmReceipt/{donationId:int}")]
+        public async Task<ActionResult<bool>> ConfirmReceipt(int donationId, ConfirmReceiptDTO dto)
+        {
+            var userId = GetUserIdFromToken();
+            var result = await _charityDonationService.ConfirmReceiptAsync(userId, donationId, dto);
             return HandleResult(result);
         }
     }

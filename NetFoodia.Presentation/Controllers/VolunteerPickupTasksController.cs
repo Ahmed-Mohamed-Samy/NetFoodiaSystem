@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NetFoodia.Services_Abstraction;
 using NetFoodia.Shared.DeliveryDTOs;
+using NetFoodia.Shared.DonationDTOs;
 
 namespace NetFoodia.Presentation.Controllers
 {
@@ -51,6 +52,14 @@ namespace NetFoodia.Presentation.Controllers
         {
             var userId = GetUserIdFromToken();
             var result = await _volunteerPickupTaskService.RejectTaskAsync(userId, taskId);
+            return HandleResult(result);
+        }
+
+        [HttpPost("Inspect/{taskId:int}")]
+        public async Task<ActionResult<bool>> InspectDonation(int taskId, InspectDonationDTO dto)
+        {
+            var userId = GetUserIdFromToken();
+            var result = await _volunteerPickupTaskService.InspectDonationAsync(userId, taskId, dto);
             return HandleResult(result);
         }
 

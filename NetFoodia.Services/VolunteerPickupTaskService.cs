@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using NetFoodia.Domain.Contracts;
 using NetFoodia.Domain.Entities.DeliveryModule;
 using NetFoodia.Domain.Entities.DonationModule;
@@ -6,9 +6,11 @@ using NetFoodia.Services.Specifications.DeliverySpecifications;
 using NetFoodia.Services_Abstraction;
 using NetFoodia.Shared.CommonResult;
 using NetFoodia.Shared.DeliveryDTOs;
+using NetFoodia.Shared.DonationDTOs;
 using AttemptResponse = NetFoodia.Domain.Entities.DeliveryModule.AttemptResponse;
 using AttemptOutcome = NetFoodia.Domain.Entities.DeliveryModule.AttemptOutcome;
 using TaskStatus = NetFoodia.Domain.Entities.DeliveryModule.TaskStatus;
+using DonationStatus = NetFoodia.Domain.Entities.DonationModule.DonationStatus;
 
 namespace NetFoodia.Services
 {
@@ -68,6 +70,7 @@ namespace NetFoodia.Services
             var donation = await donationRepo.GetByIdAsync(task.DonationId);
             if (donation is not null)
             {
+                donation.Status = DonationStatus.InspectionPending;
                 donation.AssignedAt = DateTime.UtcNow;
                 donationRepo.Update(donation);
             }
@@ -106,6 +109,47 @@ namespace NetFoodia.Services
             return result;
         }
 
+        public async Task<Result<bool>> InspectDonationAsync(string volunteerUserId, int taskId, InspectDonationDTO dto)
+        {
+            var taskRepo = _unitOfWork.GetRepository<PickupTask>();
+            var donationRepo = _unitOfWork.GetRepository<Donation>();
+
+            var task = await taskRepo.GetByIdAsync(
+                new VolunteerAssignedTaskSpecification(volunteerUserId, taskId));
+
+            if (task is null)
+                return Error.NotFound("PickupTask.NotFound", "Task not found");
+
+            if (task.Status != TaskStatus.Assigned)
+                return Error.Validation("PickupTask.InvalidState", "Only Assigned task can be inspected");
+
+            var donation = await donationRepo.GetByIdAsync(task.DonationId);
+            if (donation is null)
+                return Error.NotFound("Donation.NotFound", "Donation not found");
+
+            if (dto.IsApproved)
+            {
+                donation.Status = DonationStatus.ReadyForPickup;
+            }
+            else
+            {
+                donation.Status = DonationStatus.Rejected;
+                if (!string.IsNullOrWhiteSpace(dto.Reason))
+                {
+                    donation.Notes = string.IsNullOrWhiteSpace(donation.Notes) 
+                        ? $"Rejected at inspection: {dto.Reason}" 
+                        : $"{donation.Notes}\nRejected at inspection: {dto.Reason}";
+                }
+                
+                task.Status = TaskStatus.Failed;
+                taskRepo.Update(task);
+            }
+
+            donationRepo.Update(donation);
+            var result = await _unitOfWork.SaveChangesAsync() > 0;
+            return result;
+        }
+
         public async Task<Result<bool>> StartPickupAsync(string volunteerUserId, int taskId)
         {
             var taskRepo = _unitOfWork.GetRepository<PickupTask>();
@@ -120,13 +164,17 @@ namespace NetFoodia.Services
             if (task.Status != TaskStatus.Assigned)
                 return Error.Validation("PickupTask.InvalidState", "Only Assigned task can be started");
 
+            var donation = await donationRepo.GetByIdAsync(task.DonationId);
+            if (donation != null && donation.Status != DonationStatus.ReadyForPickup)
+                return Error.Validation("Donation.InvalidState", "Donation must be inspected and approved before pickup");
+
             task.Status = TaskStatus.InProgress;
             task.StartedAt = DateTime.UtcNow;
             taskRepo.Update(task);
 
-            var donation = await donationRepo.GetByIdAsync(task.DonationId);
             if (donation is not null)
             {
+                donation.Status = DonationStatus.InTransit;
                 donation.PickedUpAt = DateTime.UtcNow;
                 donationRepo.Update(donation);
             }
