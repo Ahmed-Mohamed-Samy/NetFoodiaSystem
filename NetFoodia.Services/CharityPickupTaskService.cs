@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using NetFoodia.Domain.Contracts;
 using NetFoodia.Domain.Entities.CharityModule;
 using NetFoodia.Domain.Entities.DeliveryModule;
@@ -178,6 +178,7 @@ namespace NetFoodia.Services
             var donation = await donationRepo.GetByIdAsync(task.DonationId);
             if (donation is not null)
             {
+                donation.Status = DonationStatus.InspectionPending;
                 donation.AssignedAt = DateTime.UtcNow;
                 donationRepo.Update(donation);
             }

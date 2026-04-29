@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using NetFoodia.Domain.Contracts;
 using NetFoodia.Domain.Entities.CharityModule;
 using NetFoodia.Domain.Entities.DeliveryModule;
@@ -51,6 +51,14 @@ namespace NetFoodia.Services
 
             if (donation.Status != DonationStatus.Pending)
                 return Error.Validation("Donation.InvalidState", "Only Pending donation can be accepted");
+
+            if (DateTime.UtcNow > donation.ExpirationTime)
+            {
+                donation.Status = DonationStatus.Expired;
+                repo.Update(donation);
+                await _unitOfWork.SaveChangesAsync();
+                return Error.Validation("Donation.Expired", "Donation has expired");
+            }
 
             donation.Status = DonationStatus.Accepted;
             donation.AcceptedAt = DateTime.UtcNow;
@@ -146,6 +154,44 @@ namespace NetFoodia.Services
             var data = _mapper.Map<IEnumerable<AcceptedUnassignedDonationDTO>>(filteredDonations);
 
             return Result<IEnumerable<AcceptedUnassignedDonationDTO>>.OK(data);
+        }
+
+        public async Task<Result<bool>> ConfirmReceiptAsync(string charityAdminUserId, int donationId, ConfirmReceiptDTO dto)
+        {
+            var charityId = await GetCharityIdForAdmin(charityAdminUserId);
+            if (charityId is null)
+                return Error.NotFound("Charity.NotFound", "Charity not found for current admin");
+
+            var repo = _unitOfWork.GetRepository<Donation>();
+            var donation = await repo.GetByIdAsync(new DonationForCharityAdminSpec(charityId.Value, donationId));
+
+            if (donation is null)
+                return Error.NotFound("Donation.NotFound", "Donation not found");
+
+            // Assuming either InTransit or ReadyForPickup depending on the flow
+            if (donation.Status != DonationStatus.InTransit && donation.Status != DonationStatus.ReadyForPickup)
+                return Error.Validation("Donation.InvalidState", "Only donations InTransit or ReadyForPickup can be confirmed");
+
+            if (DateTime.UtcNow > donation.ExpirationTime)
+            {
+                donation.Status = DonationStatus.Expired;
+                repo.Update(donation);
+                await _unitOfWork.SaveChangesAsync();
+                return Error.Validation("Donation.Expired", "Donation has expired");
+            }
+
+            donation.Status = DonationStatus.Completed;
+            if (!string.IsNullOrWhiteSpace(dto.Notes))
+            {
+                donation.Notes = string.IsNullOrWhiteSpace(donation.Notes) 
+                    ? $"Receipt notes: {dto.Notes}" 
+                    : $"{donation.Notes}\nReceipt notes: {dto.Notes}";
+            }
+
+            repo.Update(donation);
+            var result = await _unitOfWork.SaveChangesAsync() > 0;
+
+            return result;
         }
     }
 }

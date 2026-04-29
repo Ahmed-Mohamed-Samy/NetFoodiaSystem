@@ -1,9 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using FluentValidation;
 using NetFoodia.Shared.DonationDTOs;
 
@@ -14,23 +8,23 @@ namespace NetFoodia.Services.Validators.DonationValidators
         public EditDonationValidator()
         {
             RuleFor(x => x.FoodType)
-                .RequiredField(nameof(CreateDonationDTO.FoodType))
-                .LengthBetweenField(nameof(CreateDonationDTO.FoodType), 3, 200);
+                .IsInEnum()
+                .WithMessage($"{nameof(EditDonationDTO.FoodType)} must be a valid food category. " +
+                             $"Allowed values: {string.Join(", ", Enum.GetValues<FoodType>().Select(v => $"{(int)v} ({v})"))}.");
+
+            RuleFor(x => x.UnitType)
+                .IsInEnum()
+                .When(x => x.UnitType.HasValue)
+                .WithMessage($"{nameof(EditDonationDTO.UnitType)} must be Kilos (1) or Meals (2).");
 
             RuleFor(x => x.Quantity)
-                .RequiredNumberField(nameof(CreateDonationDTO.Quantity));
+                .RequiredNumberField(nameof(EditDonationDTO.Quantity));
 
             RuleFor(x => x.PreparedTime)
                 .Must(x => x <= DateTime.UtcNow.AddMinutes(5))
-                .WithMessage($"{nameof(CreateDonationDTO.PreparedTime)} can not be in the far future");
+                .WithMessage($"{nameof(EditDonationDTO.PreparedTime)} cannot be in the far future.");
 
-            RuleFor(x => x.ExpirationTime)
-                .Must(x => x > DateTime.UtcNow)
-                .WithMessage($"{nameof(CreateDonationDTO.ExpirationTime)} must be in the future");
-
-            RuleFor(x => x)
-                .Must(x => x.ExpirationTime > x.PreparedTime)
-                .WithMessage($"{nameof(CreateDonationDTO.ExpirationTime)} must be after {nameof(CreateDonationDTO.PreparedTime)}");
+            // ExpirationTime is re-derived from FoodType + PreparedTime on every edit.
 
             RuleFor(x => x.Notes)
                 .MaximumLength(1000)
@@ -38,12 +32,11 @@ namespace NetFoodia.Services.Validators.DonationValidators
 
             RuleFor(x => x.Latitude)
                 .InclusiveBetween(-90, 90)
-                .WithMessage($"{nameof(CreateDonationDTO.Latitude)} must be between -90 and 90");
+                .WithMessage($"{nameof(EditDonationDTO.Latitude)} must be between -90 and 90.");
 
             RuleFor(x => x.Longitude)
                 .InclusiveBetween(-180, 180)
-                .WithMessage($"{nameof(CreateDonationDTO.Longitude)} must be between -180 and 180");
+                .WithMessage($"{nameof(EditDonationDTO.Longitude)} must be between -180 and 180.");
         }
     }
 }
-

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using NetFoodia.Shared.CommonResult;
 using NetFoodia.Shared.DeliveryDTOs;
+using NetFoodia.Shared.DonationDTOs;
 
 namespace NetFoodia.Services_Abstraction
 {
@@ -14,6 +15,7 @@ namespace NetFoodia.Services_Abstraction
         Task<Result<IEnumerable<VolunteerOfferDTO>>> ListAvailableOffersAsync(string volunteerUserId);
         Task<Result<bool>> AcceptTaskAsync(string volunteerUserId, int taskId);
         Task<Result<bool>> RejectTaskAsync(string volunteerUserId, int taskId);
+        Task<Result<bool>> InspectDonationAsync(string volunteerUserId, int taskId, InspectDonationDTO dto);
         Task<Result<bool>> StartPickupAsync(string volunteerUserId, int taskId);
         Task<Result<bool>> CompleteDeliveryAsync(string volunteerUserId, int taskId);
         Task<Result<IEnumerable<MyTaskHistoryDTO>>> GetMyTasksHistoryAsync(string volunteerUserId);
