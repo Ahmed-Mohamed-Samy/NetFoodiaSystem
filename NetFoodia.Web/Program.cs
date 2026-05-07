@@ -111,7 +111,7 @@ namespace NetFoodia.Web
                 options.AddPolicy("DevelopmentPolicy", policy =>
                 {
                     policy
-                        .WithOrigins("http://localhost:4200")
+                        .WithOrigins("http://localhost:4200", "https://graduation-project-dun-five.vercel.app")
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials();

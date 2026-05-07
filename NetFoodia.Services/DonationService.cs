@@ -42,6 +42,7 @@ namespace NetFoodia.Services
                 return Error.NotFound("Charity.NotFound", $"Charity with Id {charityId} not found or not verified");
 
             var donation = _mapper.Map<Donation>(dto);
+            donation.PreparedTime = dto.PreparedTime.ToUniversalTime();
 
             donation.DonorId = donorId;
             donation.CharityId = charityId;
@@ -54,6 +55,12 @@ namespace NetFoodia.Services
             // Derives ExpirationTime from FoodType + PreparedTime; resolves UnitType if still unset.
             donation.ApplyFoodPolicy();
             donation.UrgencyScore = CalculateUrgencyScore(donation.ExpirationTime);
+
+            if (DateTime.UtcNow > donation.ExpirationTime)
+            {
+                donation.Status = DonationStatus.Expired;
+                return Error.Validation("Donation.Expired", $"Action denied: This donation expired at {donation.ExpirationTime} UTC. Current server time is {DateTime.UtcNow} UTC.");
+            }
 
             if (dto.Image is not null)
             {
