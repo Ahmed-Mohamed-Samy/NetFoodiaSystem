@@ -52,12 +52,21 @@ namespace NetFoodia.Services
             if (donation.Status != DonationStatus.Pending)
                 return Error.Validation("Donation.InvalidState", "Only Pending donation can be accepted");
 
-            if (DateTime.UtcNow > donation.ExpirationTime)
+            if (donation.Status == DonationStatus.Expired || DateTime.UtcNow > donation.ExpirationTime)
             {
                 donation.Status = DonationStatus.Expired;
                 repo.Update(donation);
+                
+                var taskRepo = _unitOfWork.GetRepository<PickupTask>();
+                var activeTask = await taskRepo.FirstOrDefaultAsync(new TaskByDonationSpecification(donation.Id));
+                if (activeTask != null)
+                {
+                    activeTask.Status = NetFoodia.Domain.Entities.DeliveryModule.TaskStatus.Failed;
+                    taskRepo.Update(activeTask);
+                }
+                
                 await _unitOfWork.SaveChangesAsync();
-                return Error.Validation("Donation.Expired", "Donation has expired");
+                return Error.Validation("Donation.Expired", $"Action denied: This donation expired at {donation.ExpirationTime} UTC. Current server time is {DateTime.UtcNow} UTC.");
             }
 
             donation.Status = DonationStatus.Accepted;
@@ -172,12 +181,21 @@ namespace NetFoodia.Services
             if (donation.Status != DonationStatus.InTransit && donation.Status != DonationStatus.ReadyForPickup)
                 return Error.Validation("Donation.InvalidState", "Only donations InTransit or ReadyForPickup can be confirmed");
 
-            if (DateTime.UtcNow > donation.ExpirationTime)
+            if (donation.Status == DonationStatus.Expired || DateTime.UtcNow > donation.ExpirationTime)
             {
                 donation.Status = DonationStatus.Expired;
                 repo.Update(donation);
+                
+                var taskRepo = _unitOfWork.GetRepository<PickupTask>();
+                var activeTask = await taskRepo.FirstOrDefaultAsync(new TaskByDonationSpecification(donation.Id));
+                if (activeTask != null)
+                {
+                    activeTask.Status = NetFoodia.Domain.Entities.DeliveryModule.TaskStatus.Failed;
+                    taskRepo.Update(activeTask);
+                }
+                
                 await _unitOfWork.SaveChangesAsync();
-                return Error.Validation("Donation.Expired", "Donation has expired");
+                return Error.Validation("Donation.Expired", $"Action denied: This donation expired at {donation.ExpirationTime} UTC. Current server time is {DateTime.UtcNow} UTC.");
             }
 
             donation.Status = DonationStatus.Completed;

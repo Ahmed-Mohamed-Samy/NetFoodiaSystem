@@ -70,7 +70,7 @@ namespace NetFoodia.Services
             var donation = await donationRepo.GetByIdAsync(task.DonationId);
             if (donation is not null)
             {
-                if (DateTime.UtcNow > donation.ExpirationTime)
+                if (donation.Status == DonationStatus.Expired || DateTime.UtcNow > donation.ExpirationTime)
                 {
                     donation.Status = DonationStatus.Expired;
                     donationRepo.Update(donation);
@@ -79,7 +79,7 @@ namespace NetFoodia.Services
                     taskRepo.Update(task);
                     
                     await _unitOfWork.SaveChangesAsync();
-                    return Error.Validation("Donation.Expired", "Donation has expired");
+                    return Error.Validation("Donation.Expired", $"Action denied: This donation expired at {donation.ExpirationTime} UTC. Current server time is {DateTime.UtcNow} UTC.");
                 }
 
                 donation.Status = DonationStatus.InspectionPending;
@@ -132,14 +132,11 @@ namespace NetFoodia.Services
             if (task is null)
                 return Error.NotFound("PickupTask.NotFound", "Task not found");
 
-            if (task.Status != TaskStatus.Assigned)
-                return Error.Validation("PickupTask.InvalidState", "Only Assigned task can be inspected");
-
             var donation = await donationRepo.GetByIdAsync(task.DonationId);
             if (donation is null)
                 return Error.NotFound("Donation.NotFound", "Donation not found");
 
-            if (DateTime.UtcNow > donation.ExpirationTime)
+            if (donation.Status == DonationStatus.Expired || DateTime.UtcNow > donation.ExpirationTime)
             {
                 donation.Status = DonationStatus.Expired;
                 donationRepo.Update(donation);
@@ -148,8 +145,11 @@ namespace NetFoodia.Services
                 taskRepo.Update(task);
                 
                 await _unitOfWork.SaveChangesAsync();
-                return Error.Validation("Donation.Expired", "Donation has expired");
+                return Error.Validation("Donation.Expired", $"Action denied: This donation expired at {donation.ExpirationTime} UTC. Current server time is {DateTime.UtcNow} UTC.");
             }
+
+            if (task.Status != TaskStatus.Assigned)
+                return Error.Validation("PickupTask.InvalidState", "Only Assigned task can be inspected");
 
             if (dto.IsApproved)
             {
@@ -191,7 +191,7 @@ namespace NetFoodia.Services
             var donation = await donationRepo.GetByIdAsync(task.DonationId);
             if (donation != null)
             {
-                if (DateTime.UtcNow > donation.ExpirationTime)
+                if (donation.Status == DonationStatus.Expired || DateTime.UtcNow > donation.ExpirationTime)
                 {
                     donation.Status = DonationStatus.Expired;
                     donationRepo.Update(donation);
@@ -200,7 +200,7 @@ namespace NetFoodia.Services
                     taskRepo.Update(task);
                     
                     await _unitOfWork.SaveChangesAsync();
-                    return Error.Validation("Donation.Expired", "Donation has expired");
+                    return Error.Validation("Donation.Expired", $"Action denied: This donation expired at {donation.ExpirationTime} UTC. Current server time is {DateTime.UtcNow} UTC.");
                 }
 
                 if (donation.Status != DonationStatus.ReadyForPickup)
