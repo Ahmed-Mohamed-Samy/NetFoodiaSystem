@@ -15,6 +15,9 @@ namespace NetFoodia.Services.MappingProfiles
         {
             CreateMap<GeoLocation, GeoLocationDTO>().ReverseMap();
             CreateMap<DonorProfile, DonorProfileDTO>();
+            CreateMap<DonorProfile, DonorDto>()
+                     .ForMember(d => d.FullName, opt => opt.MapFrom(s => s.User != null ? s.User.FullName : string.Empty))
+                     .ForMember(d => d.Email, opt => opt.MapFrom(s => s.User != null ? s.User.Email : string.Empty));
             CreateMap<VolunteerProfile, VolunteerProfileDTO>()
                      .ForMember(d => d.Status, opt => opt.MapFrom(s => s.Status.ToString()))
                      .ForMember(d => d.VehicleType, opt => opt.MapFrom(

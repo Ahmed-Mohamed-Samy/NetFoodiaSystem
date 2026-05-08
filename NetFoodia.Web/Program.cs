@@ -199,8 +199,10 @@ namespace NetFoodia.Web
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
             builder.Services.AddScoped<ICharityService, CharityService>();
             builder.Services.AddScoped<IAdminCharityService, AdminCharityService>();
+            builder.Services.AddScoped<IAdminDonorService, AdminDonorService>();
             builder.Services.AddScoped<IProfileService, ProfileService>();
             builder.Services.AddScoped<IVolunteerMembershipService, VolunteerMembershipService>();
+            builder.Services.AddScoped<IHomeStatisticsService, HomeStatisticsService>();
             builder.Services.AddScoped<IDonationService, DonationService>();
             builder.Services.AddScoped<ICharityDonationService, CharityDonationService>();
             builder.Services.AddScoped<ICharityPickupTaskService, CharityPickupTaskService>();
@@ -233,6 +235,9 @@ namespace NetFoodia.Web
                 client.Timeout = TimeSpan.FromSeconds(10);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             });
+
+            // Background worker: escalates orphaned Open tasks to all available volunteers
+            builder.Services.AddHostedService<TaskEscalationWorker>();
             #endregion
 
             var app = builder.Build();

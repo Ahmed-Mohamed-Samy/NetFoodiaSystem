@@ -44,6 +44,8 @@ namespace NetFoodia.Domain.Entities.DonationModule
         public DateTime? DeliveredAt { get; set; }
         public string ImagePath { get; set; } = default!;
         public FoodInspection? Inspection { get; set; }
+        public string Address { get; set; } = default!;
+        public string? Description { get; set; }
         //public string? RejectionReason { get; set; }
         //public DateTime? ReviewedAt { get; set; }
 
