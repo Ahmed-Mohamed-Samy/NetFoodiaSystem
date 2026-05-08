@@ -225,6 +225,14 @@ namespace NetFoodia.Web
             builder.Services.AddScoped<IFoodInspectionService, FoodInspectionService>();
             builder.Services.AddScoped<IDashboardService, DashboardService>();
             builder.Services.AddScoped<IDonationReportService, DonationReportService>();
+
+            // AI Smart Volunteer Matching Service (external Railway microservice)
+            builder.Services.AddHttpClient<IAIVolunteerMatchingService, AIVolunteerMatchingService>(client =>
+            {
+                client.BaseAddress = new Uri("https://ai-service-production-507e.up.railway.app/");
+                client.Timeout = TimeSpan.FromSeconds(10);
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
             #endregion
 
             var app = builder.Build();
