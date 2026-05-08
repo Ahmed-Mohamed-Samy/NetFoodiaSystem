@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -111,7 +111,7 @@ namespace NetFoodia.Web
                 options.AddPolicy("DevelopmentPolicy", policy =>
                 {
                     policy
-                        .WithOrigins("http://localhost:4200")
+                        .WithOrigins("http://localhost:4200", "https://graduation-project-dun-five.vercel.app")
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials();
@@ -200,8 +200,10 @@ namespace NetFoodia.Web
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
             builder.Services.AddScoped<ICharityService, CharityService>();
             builder.Services.AddScoped<IAdminCharityService, AdminCharityService>();
+            builder.Services.AddScoped<IAdminDonorService, AdminDonorService>();
             builder.Services.AddScoped<IProfileService, ProfileService>();
             builder.Services.AddScoped<IVolunteerMembershipService, VolunteerMembershipService>();
+            builder.Services.AddScoped<IHomeStatisticsService, HomeStatisticsService>();
             builder.Services.AddScoped<IDonationService, DonationService>();
             builder.Services.AddScoped<ICharityDonationService, CharityDonationService>();
             builder.Services.AddScoped<ICharityPickupTaskService, CharityPickupTaskService>();
@@ -225,6 +227,18 @@ namespace NetFoodia.Web
             builder.Services.AddScoped<RuleEngine>();
             builder.Services.AddScoped<IFoodInspectionService, FoodInspectionService>();
             builder.Services.AddScoped<IDashboardService, DashboardService>();
+            builder.Services.AddScoped<IDonationReportService, DonationReportService>();
+
+            // AI Smart Volunteer Matching Service (external Railway microservice)
+            builder.Services.AddHttpClient<IAIVolunteerMatchingService, AIVolunteerMatchingService>(client =>
+            {
+                client.BaseAddress = new Uri("https://ai-service-production-507e.up.railway.app/");
+                client.Timeout = TimeSpan.FromSeconds(10);
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
+
+            // Background worker: escalates orphaned Open tasks to all available volunteers
+            builder.Services.AddHostedService<TaskEscalationWorker>();
             #endregion
 
             var app = builder.Build();

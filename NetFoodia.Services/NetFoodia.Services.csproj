@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NetFoodia.Domain\NetFoodia.Domain.csproj" />
     <ProjectReference Include="..\NetFoodia.Services Abstraction\NetFoodia.Services Abstraction.csproj" />
+    <ProjectReference Include="..\NetFoodia.Shared\NetFoodia.Shared.csproj" />
   </ItemGroup>
 
 </Project>

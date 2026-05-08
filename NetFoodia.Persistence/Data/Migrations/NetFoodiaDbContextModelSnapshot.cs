@@ -307,6 +307,12 @@ namespace NetFoodia.Persistence.Data.Migrations
                     b.Property<int>("DonationId")
                         .HasColumnType("int");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
                     b.Property<DateTime?>("SlaDueAt")
                         .HasColumnType("datetime2");
 
@@ -323,6 +329,9 @@ namespace NetFoodia.Persistence.Data.Migrations
                     b.HasIndex("CharityId");
 
                     b.HasIndex("DonationId");
+
+                    b.HasIndex("Status", "SlaDueAt")
+                        .HasDatabaseName("IX_PickupTasks_Status_SlaDueAt");
 
                     b.ToTable("PickupTasks");
                 });
@@ -359,10 +368,9 @@ namespace NetFoodia.Persistence.Data.Migrations
                     b.Property<DateTime>("ExpirationTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("FoodType")
-                        .IsRequired()
+                    b.Property<int>("FoodType")
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("int");
 
                     b.Property<string>("ImagePath")
                         .IsRequired()
@@ -382,6 +390,9 @@ namespace NetFoodia.Persistence.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UnitType")
                         .HasColumnType("int");
 
                     b.Property<float>("UrgencyScore")
@@ -714,9 +725,9 @@ namespace NetFoodia.Persistence.Data.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<string>("VehicleType")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int?>("VehicleType")
+                        .HasColumnType("int")
+                        .HasColumnName("VehicleType");
 
                     b.HasKey("UserId");
 

@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using NetFoodia.Domain.Contracts;
 using NetFoodia.Domain.Entities.DeliveryModule;
 using NetFoodia.Domain.Entities.DonationModule;
@@ -6,9 +7,11 @@ using NetFoodia.Services.Specifications.DeliverySpecifications;
 using NetFoodia.Services_Abstraction;
 using NetFoodia.Shared.CommonResult;
 using NetFoodia.Shared.DeliveryDTOs;
+using NetFoodia.Shared.DonationDTOs;
 using AttemptResponse = NetFoodia.Domain.Entities.DeliveryModule.AttemptResponse;
 using AttemptOutcome = NetFoodia.Domain.Entities.DeliveryModule.AttemptOutcome;
 using TaskStatus = NetFoodia.Domain.Entities.DeliveryModule.TaskStatus;
+using DonationStatus = NetFoodia.Domain.Entities.DonationModule.DonationStatus;
 
 namespace NetFoodia.Services
 {
@@ -68,14 +71,34 @@ namespace NetFoodia.Services
             var donation = await donationRepo.GetByIdAsync(task.DonationId);
             if (donation is not null)
             {
+                if (donation.Status == DonationStatus.Expired || DateTime.UtcNow > donation.ExpirationTime)
+                {
+                    donation.Status = DonationStatus.Expired;
+                    donationRepo.Update(donation);
+                    
+                    task.Status = TaskStatus.Failed;
+                    taskRepo.Update(task);
+                    
+                    await _unitOfWork.SaveChangesAsync();
+                    return Error.Validation("Donation.Expired", $"Action denied: This donation expired at {donation.ExpirationTime} UTC. Current server time is {DateTime.UtcNow} UTC.");
+                }
+
+                donation.Status = DonationStatus.InspectionPending;
                 donation.AssignedAt = DateTime.UtcNow;
                 donationRepo.Update(donation);
             }
 
             await CloseOtherAttempts(taskId, volunteerUserId);
 
-            var result = await _unitOfWork.SaveChangesAsync() > 0;
-            return result;
+            try
+            {
+                var result = await _unitOfWork.SaveChangesAsync() > 0;
+                return result;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Error.Failure("PickupTask.ConcurrencyConflict", "This task was already accepted by another volunteer.");
+            }
         }
 
         public async Task<Result<bool>> RejectTaskAsync(string volunteerUserId, int taskId)
@@ -106,6 +129,59 @@ namespace NetFoodia.Services
             return result;
         }
 
+        public async Task<Result<bool>> InspectDonationAsync(string volunteerUserId, int taskId, InspectDonationDTO dto)
+        {
+            var taskRepo = _unitOfWork.GetRepository<PickupTask>();
+            var donationRepo = _unitOfWork.GetRepository<Donation>();
+
+            var task = await taskRepo.GetByIdAsync(
+                new VolunteerAssignedTaskSpecification(volunteerUserId, taskId));
+
+            if (task is null)
+                return Error.NotFound("PickupTask.NotFound", "Task not found");
+
+            var donation = await donationRepo.GetByIdAsync(task.DonationId);
+            if (donation is null)
+                return Error.NotFound("Donation.NotFound", "Donation not found");
+
+            if (donation.Status == DonationStatus.Expired || DateTime.UtcNow > donation.ExpirationTime)
+            {
+                donation.Status = DonationStatus.Expired;
+                donationRepo.Update(donation);
+                
+                task.Status = TaskStatus.Failed;
+                taskRepo.Update(task);
+                
+                await _unitOfWork.SaveChangesAsync();
+                return Error.Validation("Donation.Expired", $"Action denied: This donation expired at {donation.ExpirationTime} UTC. Current server time is {DateTime.UtcNow} UTC.");
+            }
+
+            if (task.Status != TaskStatus.Assigned)
+                return Error.Validation("PickupTask.InvalidState", "Only Assigned task can be inspected");
+
+            if (dto.IsApproved)
+            {
+                donation.Status = DonationStatus.ReadyForPickup;
+            }
+            else
+            {
+                donation.Status = DonationStatus.Rejected;
+                if (!string.IsNullOrWhiteSpace(dto.Reason))
+                {
+                    donation.Notes = string.IsNullOrWhiteSpace(donation.Notes) 
+                        ? $"Rejected at inspection: {dto.Reason}" 
+                        : $"{donation.Notes}\nRejected at inspection: {dto.Reason}";
+                }
+                
+                task.Status = TaskStatus.Failed;
+                taskRepo.Update(task);
+            }
+
+            donationRepo.Update(donation);
+            var result = await _unitOfWork.SaveChangesAsync() > 0;
+            return result;
+        }
+
         public async Task<Result<bool>> StartPickupAsync(string volunteerUserId, int taskId)
         {
             var taskRepo = _unitOfWork.GetRepository<PickupTask>();
@@ -120,13 +196,32 @@ namespace NetFoodia.Services
             if (task.Status != TaskStatus.Assigned)
                 return Error.Validation("PickupTask.InvalidState", "Only Assigned task can be started");
 
+            var donation = await donationRepo.GetByIdAsync(task.DonationId);
+            if (donation != null)
+            {
+                if (donation.Status == DonationStatus.Expired || DateTime.UtcNow > donation.ExpirationTime)
+                {
+                    donation.Status = DonationStatus.Expired;
+                    donationRepo.Update(donation);
+                    
+                    task.Status = TaskStatus.Failed;
+                    taskRepo.Update(task);
+                    
+                    await _unitOfWork.SaveChangesAsync();
+                    return Error.Validation("Donation.Expired", $"Action denied: This donation expired at {donation.ExpirationTime} UTC. Current server time is {DateTime.UtcNow} UTC.");
+                }
+
+                if (donation.Status != DonationStatus.ReadyForPickup)
+                    return Error.Validation("Donation.InvalidState", "Donation must be inspected and approved before pickup");
+            }
+
             task.Status = TaskStatus.InProgress;
             task.StartedAt = DateTime.UtcNow;
             taskRepo.Update(task);
 
-            var donation = await donationRepo.GetByIdAsync(task.DonationId);
             if (donation is not null)
             {
+                donation.Status = DonationStatus.InTransit;
                 donation.PickedUpAt = DateTime.UtcNow;
                 donationRepo.Update(donation);
             }
