@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using NetFoodia.Domain.Contracts;
 using NetFoodia.Domain.Entities.DeliveryModule;
 using NetFoodia.Domain.Entities.DonationModule;
@@ -89,8 +90,15 @@ namespace NetFoodia.Services
 
             await CloseOtherAttempts(taskId, volunteerUserId);
 
-            var result = await _unitOfWork.SaveChangesAsync() > 0;
-            return result;
+            try
+            {
+                var result = await _unitOfWork.SaveChangesAsync() > 0;
+                return result;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Error.Failure("PickupTask.ConcurrencyConflict", "This task was already accepted by another volunteer.");
+            }
         }
 
         public async Task<Result<bool>> RejectTaskAsync(string volunteerUserId, int taskId)

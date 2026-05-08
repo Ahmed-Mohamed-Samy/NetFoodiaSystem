@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NetFoodia.Domain.Entities.ProfileModule;
 
@@ -21,7 +21,8 @@ namespace NetFoodia.Persistence.Data.Configurations.ProfileConfigurations
                    .HasDefaultValueSql("GETDATE()");
 
             builder.Property(x => x.VehicleType)
-                   .HasMaxLength(100);
+                   .HasConversion<int?>()
+                   .HasColumnName("VehicleType");
 
             builder.OwnsOne(c => c.Location, loc =>
             {

@@ -10,7 +10,6 @@ using NetFoodia.Services_Abstraction;
 using NetFoodia.Shared.CommonResult;
 using NetFoodia.Shared.DonationDTOs;
 using DonationStatus = NetFoodia.Domain.Entities.DonationModule.DonationStatus;
-using UnitType      = NetFoodia.Shared.DonationDTOs.UnitType;
 
 namespace NetFoodia.Services
 {

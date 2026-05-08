@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetFoodia.Persistence.Data.DbContexts;
 
@@ -11,9 +12,11 @@ using NetFoodia.Persistence.Data.DbContexts;
 namespace NetFoodia.Persistence.Data.Migrations
 {
     [DbContext(typeof(NetFoodiaDbContext))]
-    partial class NetFoodiaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260508151534_UpdatePickupTaskIndex_SlaDueAt")]
+    partial class UpdatePickupTaskIndex_SlaDueAt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -306,12 +309,6 @@ namespace NetFoodia.Persistence.Data.Migrations
 
                     b.Property<int>("DonationId")
                         .HasColumnType("int");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
 
                     b.Property<DateTime?>("SlaDueAt")
                         .HasColumnType("datetime2");

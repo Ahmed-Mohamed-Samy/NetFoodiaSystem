@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,5 +26,7 @@ namespace NetFoodia.Domain.Entities.DeliveryModule
         public DateTime? CompletedAt { get; set; }
 
         public TaskStatus Status { get; set; } = TaskStatus.Open;
+
+        public byte[] RowVersion { get; set; } = default!;
     }
 }

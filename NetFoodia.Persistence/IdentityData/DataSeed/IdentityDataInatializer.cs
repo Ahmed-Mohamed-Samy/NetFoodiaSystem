@@ -38,7 +38,9 @@ namespace NetFoodia.Persistence.IdentityData.DataSeed
                         UserName = "AhmedSamy",
                         Email = "AhmedSamy@gmail.com",
                         PhoneNumber = "01016334658",
-                        Role = "Admin"
+                        Role = "Admin",
+                        IsActive = true,
+                        IsCompleted = true,
                     };
 
                     await _userManager.CreateAsync(User, "P@ssw0rd");
