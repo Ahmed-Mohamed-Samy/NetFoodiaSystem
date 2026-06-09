@@ -8,7 +8,7 @@ namespace NetFoodia.Services
 {
     /// <summary>
     /// HTTP client implementation that calls the deployed AI Smart Matching microservice
-    /// at https://ai-service-production-507e.up.railway.app/rank-volunteers.
+    /// at https://ai-service-production-fbce.up.railway.app.
     /// </summary>
     public class AIVolunteerMatchingService : IAIVolunteerMatchingService
     {

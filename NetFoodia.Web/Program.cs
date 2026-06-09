@@ -231,7 +231,7 @@ namespace NetFoodia.Web
             // AI Smart Volunteer Matching Service (external Railway microservice)
             builder.Services.AddHttpClient<IAIVolunteerMatchingService, AIVolunteerMatchingService>(client =>
             {
-                client.BaseAddress = new Uri("https://ai-service-production-507e.up.railway.app/");
+                client.BaseAddress = new Uri("https://ai-service-production-fbce.up.railway.app/");
                 client.Timeout = TimeSpan.FromSeconds(10);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             });
