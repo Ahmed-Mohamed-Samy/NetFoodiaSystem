@@ -21,7 +21,7 @@ namespace NetFoodia.Shared.DonationDTOs
 
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
-        public string Address { get; set; } = default!;
+        public string? Address { get; set; }
         public string? Notes { get; set; }
         public string? Description { get; set; }
         public IFormFile Image { get; set; } = default!;
