@@ -122,9 +122,11 @@ namespace NetFoodia.Web
 
             builder.Services.AddIdentityCore<ApplicationUser>()
                                 .AddRoles<IdentityRole>()
-                                .AddEntityFrameworkStores<NetFoodiaDbContext>();
+                                .AddEntityFrameworkStores<NetFoodiaDbContext>()
+                                .AddDefaultTokenProviders();
 
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
             var jwt = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
 
@@ -192,6 +194,8 @@ namespace NetFoodia.Web
             #endregion
 
             #region BusinessServices
+            builder.Services.AddMemoryCache();
+            builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<IJwtService, JwtService>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();

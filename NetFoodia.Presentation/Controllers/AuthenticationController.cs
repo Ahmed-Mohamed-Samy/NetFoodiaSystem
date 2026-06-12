@@ -1,4 +1,4 @@
-﻿
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NetFoodia.Services_Abstraction;
@@ -48,12 +48,28 @@ namespace NetFoodia.Presentation.Controllers
             return HandleResult(result);
         }
 
-        [Authorize]
-        [HttpPost("ChangePassword")]
-        public async Task<IActionResult> ChangePassword(ChangePasswordDTO passwordDTO)
+        // [Authorize]
+        // [HttpPost("ChangePassword")]
+        // public async Task<IActionResult> ChangePassword(ChangePasswordDTO passwordDTO)
+        // {
+        //     var userEmail = GetEmailFromToken();
+        //     var result = await _authenticationService.ChangePasswordAsync(userEmail, passwordDTO);
+
+        //     return HandleResult(result);
+        // }
+
+        [HttpPost("ForgotPassword")]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordDTO forgotPasswordDTO)
         {
-            var userEmail = GetEmailFromToken();
-            var result = await _authenticationService.ChangePasswordAsync(userEmail, passwordDTO);
+            var result = await _authenticationService.ForgotPasswordAsync(forgotPasswordDTO);
+
+            return HandleResult(result);
+        }
+
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDTO resetPasswordDTO)
+        {
+            var result = await _authenticationService.ResetPasswordAsync(resetPasswordDTO);
 
             return HandleResult(result);
         }
