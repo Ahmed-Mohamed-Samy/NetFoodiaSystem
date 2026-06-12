@@ -1,4 +1,4 @@
-﻿using NetFoodia.Domain.Entities.CharityModule;
+using NetFoodia.Domain.Entities.CharityModule;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +10,9 @@ namespace NetFoodia.Services.Specifications.CharitySpecifications
     public class CharityByIdSpec : BaseSpecification<Charity>
     {
         public CharityByIdSpec(int id) : base(c => c.Id == id)
-        { }
+        {
+            AddInclude(c => c.AdminProfile);
+            AddInclude("AdminProfile.User");
+        }
     }
 }
