@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,6 +33,7 @@ namespace NetFoodia.Services.MappingProfiles
                 .ForMember(d => d.DonationId, opt => opt.MapFrom(s => s.PickupTask.DonationId))
                 .ForMember(d => d.DonationTitle, opt => opt.MapFrom(s => s.PickupTask.Donation.FoodType))
                 .ForMember(d => d.CharityName, opt => opt.MapFrom(s => s.PickupTask.Charity.OrganizationName))
+                .ForMember(d => d.DonationImageUrl, opt => opt.MapFrom<TaskDonationUrlResolver<VolunteerOfferDTO>>())
                 .ForMember(d => d.SlaDueAt, opt => opt.MapFrom(s => s.PickupTask.SlaDueAt))
                 .ForMember(d => d.Response, opt => opt.MapFrom(s => (AttemptResponseDTO)(int)s.Response));
 
@@ -40,6 +41,7 @@ namespace NetFoodia.Services.MappingProfiles
                 .ForMember(d => d.TaskId, opt => opt.MapFrom(s => s.Id))
                 .ForMember(d => d.DonationTitle, opt => opt.MapFrom(s => s.Donation.FoodType))
                 .ForMember(d => d.CharityName, opt => opt.MapFrom(s => s.Charity.OrganizationName))
+                .ForMember(d => d.DonationImageUrl, opt => opt.MapFrom<TaskDonationUrlResolver<MyTaskHistoryDTO>>())
                 .ForMember(d => d.Status, opt => opt.MapFrom(s => (TaskStatusDTO)(int)s.Status));
         }
     }

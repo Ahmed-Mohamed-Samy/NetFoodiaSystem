@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +13,7 @@ namespace NetFoodia.Shared.DeliveryDTOs
         Assigned = 3,
         InProgress = 4,
         Completed = 5,
-        Failed = 6
+        Failed = 6,
+        Cancelled = 7
     }
 }

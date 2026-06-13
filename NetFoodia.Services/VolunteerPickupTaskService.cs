@@ -321,13 +321,15 @@ namespace NetFoodia.Services
             attemptRepo.Update(attempt);
 
             task.AssignedVolunteerId = null;
-            task.Status = TaskStatus.Open;
+            task.Status = TaskStatus.Cancelled;
             taskRepo.Update(task);
 
             var donation = await donationRepo.GetByIdAsync(task.DonationId);
             if (donation is not null)
             {
                 donation.AssignedAt = null;
+                donation.AcceptedAt = null;
+                donation.Status = DonationStatus.Pending;
                 donationRepo.Update(donation);
             }
 
